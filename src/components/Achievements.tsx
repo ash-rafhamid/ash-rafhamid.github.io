@@ -5,7 +5,7 @@ const Achievements = () => {
   const achievements = [
     {
       icon: Code,
-      number: '500+',
+      number: '600+',
       title: 'LeetCode Problems',
       description: 'Solved across Easy, Medium, and Hard difficulties',
       color: 'from-slate-700 to-slate-800',
