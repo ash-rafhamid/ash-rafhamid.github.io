@@ -56,7 +56,7 @@ const About = () => {
               I specialize in Natural Language Processing, Transformer architectures, and have hands-on experience with neural networks including CNNs and RNNs. My deep understanding of attention mechanisms, self-attention, and multi-head attention allows me to work on cutting-edge AI projects.
             </p>
             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-              Beyond AI/ML, I'm an experienced Android developer and competitive programmer with 500+ LeetCode problems solved. I'm passionate about creating real-world solutions that make a difference.
+              Beyond AI/ML, I'm an experienced Android developer and competitive programmer with 600+ LeetCode problems solved. I'm passionate about creating real-world solutions that make a difference.
             </p>
           </motion.div>
 
