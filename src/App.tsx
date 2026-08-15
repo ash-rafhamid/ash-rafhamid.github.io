@@ -1,85 +1,69 @@
 import { AnimatePresence, MotionConfig, motion, useScroll, useSpring } from 'framer-motion'
-import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUpRight,
-  BrainCircuit,
-  Code2,
-  Database,
-  Mail,
-  MapPin,
-  Menu,
-  Send,
-  Smartphone,
-  X,
-} from 'lucide-react'
-import { useEffect, useState, type ReactNode } from 'react'
+import { ArrowDown, ArrowRight, ArrowUpRight, Mail, MapPin, Menu, Send, X } from 'lucide-react'
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 
-const navItems = [
-  { label: 'Work', href: '#work' },
+const navigation = [
+  { label: 'Selected work', href: '#work' },
   { label: 'About', href: '#about' },
-  { label: 'Stack', href: '#stack' },
+  { label: 'Capabilities', href: '#capabilities' },
   { label: 'Practice', href: '#practice' },
   { label: 'Contact', href: '#contact' },
 ]
 
 const projects = [
   {
-    id: '01',
-    slug: 'localfix',
-    title: 'LocalFix',
-    type: 'Civic technology / Android',
-    statement: 'Turning neighbourhood problems into visible, actionable reports.',
-    description:
-      'A community platform for reporting damaged roads, broken streetlights, and other local issues. Residents can add evidence, support important reports, and help urgent problems get noticed.',
-    features: ['Image-led reporting', 'Community voting', 'Firebase data layer', 'Location-ready architecture'],
-    tools: ['Android', 'Java', 'Firebase', 'Maps API'],
-  },
-  {
-    id: '02',
-    slug: 'spam',
-    title: 'Spam Classifier',
-    type: 'Applied machine learning / NLP',
-    statement: 'An end-to-end text classifier, measured before it is trusted.',
-    description:
-      'A complete machine learning pipeline for classifying messages in real time, from text preparation and TF-IDF features to model comparison, evaluation, and a usable Streamlit interface.',
-    features: ['TF-IDF extraction', 'Three-model comparison', 'Evaluation pipeline', 'Live prediction UI'],
-    tools: ['Python', 'Scikit-learn', 'NLP', 'Streamlit'],
-  },
-  {
-    id: '03',
-    slug: 'hospital',
-    title: 'Hospital System',
-    type: 'Systems programming / C',
-    statement: 'Reliable record management built from first principles.',
-    description:
-      'A file-backed system for patient, doctor, and appointment records. Built to strengthen low-level reasoning around data structures, persistence, validation, and dependable workflows.',
-    features: ['Complete CRUD flow', 'Persistent file storage', 'Custom data structures', 'Input validation'],
-    tools: ['C', 'File handling', 'Data structures'],
-  },
-]
-
-const stack = [
-  {
     number: '01',
-    title: 'Intelligence',
-    icon: BrainCircuit,
-    summary: 'Models, experiments, and evaluation for problems where useful predictions matter.',
-    tools: ['PyTorch', 'TensorFlow', 'Scikit-learn', 'Pandas', 'NumPy', 'NLP', 'Transformers', 'CNN', 'RNN'],
+    title: 'LocalFix',
+    discipline: 'Android / Civic technology',
+    thesis: 'A clearer path from a local problem to collective action.',
+    description:
+      'A community issue-reporting application designed around the simple act of noticing what needs attention. Residents document infrastructure problems, add evidence, vote, and help urgent reports rise.',
+    contributions: ['Image-led reports', 'Community voting', 'Firebase data layer', 'Location-ready design'],
+    tools: 'Android Studio, Java, Firebase, Maps API',
+    motif: 'map',
+    tone: 'paper',
   },
   {
     number: '02',
-    title: 'Engineering',
-    icon: Code2,
-    summary: 'Clear, maintainable systems shaped around strong fundamentals and practical constraints.',
-    tools: ['Java', 'Python', 'C++', 'C', 'Spring Boot', 'REST APIs', 'SQL', 'Git'],
+    title: 'Spam Classifier',
+    discipline: 'Machine learning / NLP',
+    thesis: 'A prediction is only useful when its reasoning has been measured.',
+    description:
+      'An end-to-end text classification pipeline covering preparation, TF-IDF feature extraction, model comparison, evaluation, and an interface for real-time message analysis.',
+    contributions: ['TF-IDF features', 'Three-model comparison', 'Measured evaluation', 'Streamlit interface'],
+    tools: 'Python, Scikit-learn, NLP, Streamlit',
+    motif: 'classifier',
+    tone: 'ink',
   },
   {
     number: '03',
-    title: 'Mobile',
-    icon: Smartphone,
-    summary: 'Android experiences that make complex community workflows feel direct and simple.',
-    tools: ['Android Studio', 'Java', 'Firebase', 'XML', 'Google Maps API'],
+    title: 'Hospital System',
+    discipline: 'Systems programming / C',
+    thesis: 'Reliable records, built patiently from first principles.',
+    description:
+      'A file-backed management system for patient, doctor, and appointment records, created to strengthen low-level reasoning around persistence, validation, and durable workflows.',
+    contributions: ['Complete CRUD flow', 'Persistent storage', 'Custom structures', 'Input validation'],
+    tools: 'C, File handling, Data structures',
+    motif: 'ledger',
+    tone: 'paper-deep',
+  },
+]
+
+const capabilities = [
+  {
+    label: 'Intelligent systems',
+    note: 'Models that are tested before they are trusted.',
+    items: ['PyTorch', 'TensorFlow', 'Scikit-learn', 'NLP', 'Transformers', 'CNN', 'RNN', 'Pandas', 'NumPy'],
+  },
+  {
+    label: 'Software engineering',
+    note: 'Clear systems built on dependable fundamentals.',
+    items: ['Java', 'Python', 'C++', 'C', 'Spring Boot', 'REST APIs', 'SQL', 'Git'],
+  },
+  {
+    label: 'Mobile development',
+    note: 'Useful Android experiences for real workflows.',
+    items: ['Android Studio', 'Java', 'Firebase', 'XML', 'Google Maps API'],
   },
 ]
 
@@ -89,146 +73,119 @@ function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; 
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 36 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.18 }}
-      transition={{ duration: 0.75, delay, ease }}
+      viewport={{ once: true, amount: 0.16 }}
+      transition={{ duration: 0.9, delay, ease }}
     >
       {children}
     </motion.div>
   )
 }
 
-function SectionTitle({ index, label, title }: { index: string; label: string; title: string }) {
+function SectionHeading({ number, label, title }: { number: string; label: string; title: string }) {
   return (
-    <Reveal className="section-title">
-      <div className="section-tag"><span>{index}</span>{label}</div>
+    <Reveal className="section-heading">
+      <div className="chapter-label"><span>{number}</span><span>{label}</span></div>
       <h2>{title}</h2>
     </Reveal>
   )
 }
 
-function LocalFixVisual() {
+function MapMotif() {
   return (
-    <div className="product-visual localfix-visual" aria-hidden="true">
-      <div className="map-grid" />
-      <span className="map-road road-one" />
-      <span className="map-road road-two" />
-      <span className="map-pin pin-one">3</span>
-      <span className="map-pin pin-two">1</span>
-      <div className="issue-sheet">
-        <div className="sheet-top"><span>REPORT / 024</span><i>OPEN</i></div>
-        <div className="issue-photo"><span /><span /></div>
-        <strong>Broken streetlight</strong>
-        <small>Dhanmondi, Dhaka</small>
-        <div className="vote-row"><b>+ 28</b><span>Support this issue</span></div>
-      </div>
+    <div className="project-motif map-motif" aria-hidden="true">
+      <span className="map-line line-a" /><span className="map-line line-b" /><span className="map-line line-c" />
+      <i className="location location-a"><b>12</b></i>
+      <i className="location location-b"><b>07</b></i>
+      <i className="location location-c"><b>24</b></i>
+      <div className="map-caption"><span>Issue density</span><strong>43 open reports</strong></div>
     </div>
   )
 }
 
-function SpamVisual() {
+function ClassifierMotif() {
   return (
-    <div className="product-visual spam-visual" aria-hidden="true">
-      <div className="classifier-head"><span>MESSAGE ANALYSIS</span><i>MODEL 03</i></div>
-      <div className="message-card message-a">
-        <span className="avatar">JD</span>
-        <div><b>Project update for Monday</b><small>Attached is the latest progress...</small></div>
-        <strong>SAFE</strong>
-      </div>
-      <div className="message-card message-b">
-        <span className="avatar">?</span>
-        <div><b>YOU HAVE WON $50,000!!!</b><small>Claim your reward immediately...</small></div>
-        <strong>SPAM</strong>
-      </div>
-      <div className="score-panel">
-        <span><small>Confidence</small><b>98.4%</b></span>
-        <div className="score-track"><i /></div>
-      </div>
+    <div className="project-motif classifier-motif" aria-hidden="true">
+      <div className="message-line"><span>Project notes for Monday</span><i>SAFE</i></div>
+      <div className="message-line flagged"><span>Claim your prize today!!!</span><i>SPAM</i></div>
+      <div className="message-line"><span>Your application update</span><i>SAFE</i></div>
+      <div className="confidence"><span>Model confidence</span><strong>98.4%</strong><div><i /></div></div>
+      <b className="scan-line" />
     </div>
   )
 }
 
-function HospitalVisual() {
+function LedgerMotif() {
   return (
-    <div className="product-visual hospital-visual" aria-hidden="true">
-      <div className="hospital-sidebar"><Database size={22} /><span /><span /><span /></div>
-      <div className="hospital-main">
-        <div className="hospital-head"><span>HOSPITAL / RECORDS</span><i>+ NEW PATIENT</i></div>
-        <div className="hospital-stats"><span><small>Patients</small><b>1,284</b></span><span><small>Doctors</small><b>42</b></span><span><small>Today</small><b>18</b></span></div>
-        <div className="record-table">
-          <div><b>ID</b><b>PATIENT</b><b>STATUS</b></div>
-          <div><span>#1024</span><span>Nadia Rahman</span><i>CHECKED IN</i></div>
-          <div><span>#1025</span><span>Fahim Islam</span><i>WAITING</i></div>
-          <div><span>#1026</span><span>Samira Khan</span><i>COMPLETE</i></div>
-        </div>
-      </div>
+    <div className="project-motif ledger-motif" aria-hidden="true">
+      <div className="ledger-head"><span>ID</span><span>Patient</span><span>Status</span></div>
+      <div><span>1024</span><span>Nadia Rahman</span><i>Checked in</i></div>
+      <div><span>1025</span><span>Fahim Islam</span><i>Waiting</i></div>
+      <div><span>1026</span><span>Samira Khan</span><i>Complete</i></div>
+      <div><span>1027</span><span>Adnan Karim</span><i>Waiting</i></div>
+      <b className="ledger-cursor" />
     </div>
   )
 }
 
-function ProjectVisual({ slug }: { slug: string }) {
-  if (slug === 'localfix') return <LocalFixVisual />
-  if (slug === 'spam') return <SpamVisual />
-  return <HospitalVisual />
+function ProjectMotif({ motif }: { motif: string }) {
+  if (motif === 'map') return <MapMotif />
+  if (motif === 'classifier') return <ClassifierMotif />
+  return <LedgerMotif />
 }
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('work')
   const { scrollYProgress } = useScroll()
-  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 30, restDelta: 0.001 })
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 28, restDelta: 0.001 })
 
   useEffect(() => {
-    const sections = navItems
+    const sections = navigation
       .map((item) => document.querySelector(item.href))
-      .filter((section): section is Element => Boolean(section))
+      .filter((item): item is Element => Boolean(item))
     const observer = new IntersectionObserver(
       (entries) => {
-        const current = entries.find((entry) => entry.isIntersecting)
-        if (current?.target.id) setActiveSection(current.target.id)
+        const visible = entries.find((entry) => entry.isIntersecting)
+        if (visible?.target.id) setActiveSection(visible.target.id)
       },
-      { rootMargin: '-30% 0px -60%', threshold: 0.05 },
+      { rootMargin: '-32% 0px -60%', threshold: 0.05 },
     )
     sections.forEach((section) => observer.observe(section))
     return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
-    const close = (event: KeyboardEvent) => event.key === 'Escape' && setMenuOpen(false)
-    window.addEventListener('keydown', close)
-    return () => window.removeEventListener('keydown', close)
+    const onEscape = (event: KeyboardEvent) => event.key === 'Escape' && setMenuOpen(false)
+    window.addEventListener('keydown', onEscape)
+    return () => window.removeEventListener('keydown', onEscape)
   }, [])
 
   return (
     <MotionConfig reducedMotion="user">
       <a className="skip-link" href="#main">Skip to content</a>
       <motion.div className="scroll-progress" style={{ scaleX: progress }} />
-      <div className="load-screen" aria-hidden="true"><span>AHM</span></div>
+
+      <div className="opening" aria-hidden="true">
+        {['I', 'II', 'III', 'IV'].map((number, index) => <span key={number} style={{ '--panel': index } as CSSProperties}><i>{number}</i></span>)}
+      </div>
 
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="Ashraf Hamid Mojumder, home">
-          <span className="brand-mark">A</span>
-          <span className="brand-name">Ashraf Hamid<br />Mojumder</span>
+        <a className="wordmark" href="#top" aria-label="Ashraf Hamid Mojumder, home">
+          <span>AHM</span><i>Portfolio</i>
         </a>
-
         <nav className="desktop-nav" aria-label="Primary navigation">
-          {navItems.map((item) => (
-            <a key={item.href} href={item.href} className={activeSection === item.href.slice(1) ? 'active' : ''}>{item.label}</a>
-          ))}
+          {navigation.map((item) => <a key={item.href} href={item.href} className={activeSection === item.href.slice(1) ? 'active' : ''}>{item.label}</a>)}
         </nav>
-
-        <a className="header-contact" href="mailto:ashrafhamidmajumder@gmail.com">Let&apos;s talk <ArrowUpRight size={15} /></a>
-        <button className="menu-toggle" type="button" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-controls="mobile-menu" aria-label="Toggle navigation">
-          {menuOpen ? <X size={21} /> : <Menu size={21} />}
+        <a className="header-link" href="mailto:ashrafhamidmajumder@gmail.com">Write to me <ArrowUpRight size={14} /></a>
+        <button className="menu-button" type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle navigation" aria-expanded={menuOpen} aria-controls="mobile-navigation">
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
-
         <AnimatePresence>
           {menuOpen && (
-            <motion.nav id="mobile-menu" className="mobile-menu" aria-label="Mobile navigation" initial={{ clipPath: 'inset(0 0 100% 0)' }} animate={{ clipPath: 'inset(0 0 0% 0)' }} exit={{ clipPath: 'inset(0 0 100% 0)' }} transition={{ duration: 0.45, ease }}>
-              {navItems.map((item, index) => (
-                <a href={item.href} key={item.href} onClick={() => setMenuOpen(false)}><span>0{index + 1}</span>{item.label}</a>
-              ))}
+            <motion.nav id="mobile-navigation" className="mobile-nav" aria-label="Mobile navigation" initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }} transition={{ duration: 0.35, ease }}>
+              {navigation.map((item, index) => <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}><span>0{index + 1}</span>{item.label}</a>)}
             </motion.nav>
           )}
         </AnimatePresence>
@@ -236,119 +193,138 @@ function App() {
 
       <main id="main">
         <section className="hero" id="top">
-          <div className="hero-grid" aria-hidden="true" />
-          <motion.div className="availability" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8, duration: 0.5 }}>
-            <span className="status-dot" /> Open to opportunities
-          </motion.div>
-
-          <div className="hero-headline">
-            <p className="hero-label">Software engineer / AI-ML builder / Android developer</p>
+          <div className="hero-rule" aria-hidden="true"><span /></div>
+          <motion.p className="hero-overline" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.05, duration: 0.7 }}>A digital folio / Dhaka, Bangladesh</motion.p>
+          <div className="hero-title">
             <h1 aria-label="Ashraf Hamid Mojumder">
-              {['ASHRAF', 'HAMID', 'MOJUMDER'].map((word, index) => (
-                <span key={word} className={index === 1 ? 'outline-word' : ''}>
-                  <motion.span initial={{ y: '110%' }} animate={{ y: 0 }} transition={{ duration: 0.9, delay: 0.12 + index * 0.11, ease }}>{word}</motion.span>
+              {['Ashraf Hamid', 'Mojumder'].map((line, index) => (
+                <span key={line} className={index === 1 ? 'title-italic' : ''}>
+                  <motion.i initial={{ y: '112%' }} animate={{ y: 0 }} transition={{ duration: 1.05, delay: 0.58 + index * 0.13, ease }}>{line}</motion.i>
                 </span>
               ))}
             </h1>
+            <motion.span className="hero-edition" initial={{ opacity: 0, rotate: -8 }} animate={{ opacity: 1, rotate: -3 }} transition={{ delay: 1.15, duration: 0.7 }}>Est.<br />2024</motion.span>
           </div>
 
-          <motion.div className="hero-bottom" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.72, duration: 0.7, ease }}>
-            <p>I build intelligent, dependable software for problems that exist beyond the screen.</p>
-            <a href="#work">See selected work <ArrowDown size={17} /></a>
+          <motion.div className="hero-statement" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.12, duration: 0.8, ease }}>
+            <p>Software engineer building intelligent systems, dependable software, and useful Android experiences.</p>
+            <div className="hero-actions">
+              <a href="#work">Selected work <ArrowDown size={15} /></a>
+              <a href="mailto:ashrafhamidmajumder@gmail.com">Start a conversation</a>
+            </div>
           </motion.div>
 
-          <motion.div className="system-window window-one" initial={{ opacity: 0, x: 30, rotate: 3 }} animate={{ opacity: 1, x: 0, rotate: -2 }} transition={{ delay: 0.9, duration: 0.7, ease }} aria-hidden="true">
-            <div className="window-bar"><i /><i /><i /><span>learning.log</span></div>
-            <pre><em>01</em> model.fit(data)<br /><em>02</em> evaluate(baseline)<br /><em>03</em> iterate(with_purpose)<br /><b>04</b> ship(what_matters)</pre>
-          </motion.div>
-
-          <motion.div className="system-window window-two" initial={{ opacity: 0, x: -20, rotate: -3 }} animate={{ opacity: 1, x: 0, rotate: 2 }} transition={{ delay: 1.02, duration: 0.7, ease }} aria-hidden="true">
-            <div className="window-bar"><i /><i /><i /><span>profile.sys</span></div>
-            <div className="profile-readout"><span>600+</span><small>problems solved</small><b>Dhaka / BD</b></div>
-          </motion.div>
+          <div className="hero-aside" aria-hidden="true">
+            <span>Think</span><span>Measure</span><span>Build</span>
+          </div>
+          <span className="hero-folio" aria-hidden="true">Folio No. 01</span>
         </section>
 
-        <div className="ticker" aria-hidden="true">
-          <div>{[...Array(2)].flatMap((_, copy) => ['Machine Learning', 'Software Engineering', 'Android Development', 'Problem Solving'].map((item) => <span key={`${copy}-${item}`}>{item}<i>+</i></span>))}</div>
-        </div>
+        <section className="manifesto">
+          <Reveal className="manifesto-inner">
+            <p className="manifesto-index">01 / Point of view</p>
+            <p>I believe the best engineering feels <em>inevitable</em>: complex beneath the surface, clear in the hands of the person using it.</p>
+          </Reveal>
+          <div className="manifesto-line" aria-hidden="true"><span /></div>
+        </section>
 
-        <section className="section work" id="work">
-          <SectionTitle index="01" label="Selected work" title="Things I have built." />
-          <div className="projects">
+        <section className="work" id="work">
+          <div className="section-shell">
+            <SectionHeading number="02" label="Selected work" title="Three studies in useful software." />
+          </div>
+          <div className="project-stack">
             {projects.map((project, index) => (
-              <Reveal className={`project project-${project.slug}`} key={project.id}>
-                <div className="project-topline"><span>PROJECT / {project.id}</span><span>{project.type}</span></div>
-                <div className="project-layout">
+              <motion.article
+                className={`project-page tone-${project.tone}`}
+                style={{ '--page-index': index } as CSSProperties}
+                key={project.number}
+                initial={{ opacity: 0.6, y: 70 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.12 }}
+                transition={{ duration: 0.9, ease }}
+              >
+                <div className="page-head"><span>Case study / {project.number}</span><span>{project.discipline}</span></div>
+                <div className="page-grid">
                   <div className="project-copy">
+                    <span className="project-number">{project.number}</span>
                     <h3>{project.title}</h3>
-                    <p className="project-statement">{project.statement}</p>
+                    <p className="project-thesis">{project.thesis}</p>
                     <p className="project-description">{project.description}</p>
-                    <ul>{project.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
-                    <div className="tool-list">{project.tools.map((tool) => <span key={tool}>{tool}</span>)}</div>
                   </div>
-                  <ProjectVisual slug={project.slug} />
+                  <ProjectMotif motif={project.motif} />
+                  <div className="project-notes">
+                    <div><span>Contribution</span><ul>{project.contributions.map((item) => <li key={item}>{item}</li>)}</ul></div>
+                    <div><span>Tools</span><p>{project.tools}</p></div>
+                  </div>
                 </div>
-                <span className="project-giant-number" aria-hidden="true">{index + 1}</span>
-              </Reveal>
+                <div className="page-foot"><span>Ashraf Hamid Mojumder</span><span>{String(index + 1).padStart(2, '0')} / 03</span></div>
+              </motion.article>
             ))}
           </div>
         </section>
 
-        <section className="section about" id="about">
-          <SectionTitle index="02" label="About me" title="Theory in. Useful systems out." />
-          <div className="about-layout">
-            <Reveal className="about-main">
-              <p className="about-lead">I am a software engineer who likes hard problems, clear thinking, and products that improve something real.</p>
-              <p>My computer science foundation spans algorithms, machine learning, deep learning, backend systems, and Android development. I am most interested in the moment where an idea has to survive contact with real data, real constraints, and real users.</p>
+        <section className="about section-shell" id="about">
+          <SectionHeading number="03" label="About" title="A patient approach to difficult problems." />
+          <div className="about-grid">
+            <Reveal className="about-lead">
+              <p>I work where theory must become something real.</p>
             </Reveal>
-            <Reveal className="about-data" delay={0.12}>
+            <Reveal className="about-copy" delay={0.1}>
+              <p>My foundation spans algorithms, machine learning, deep learning, backend systems, and Android development. I am most interested in the moment when an idea has to survive real data, real constraints, and real users.</p>
+              <p>I care about honest evaluation, careful implementation, and solutions that earn their complexity.</p>
+            </Reveal>
+            <Reveal className="about-facts" delay={0.16}>
               <div><span>Education</span><strong>BSc in Computer Science</strong></div>
               <div><span>Academic record</span><strong>3.90 / 4.00 CGPA</strong></div>
-              <div><span>Focus</span><strong>Applied AI + software systems</strong></div>
-              <div><span>Location</span><strong>Bangladesh / GMT+6</strong></div>
+              <div><span>Primary focus</span><strong>Applied AI & software systems</strong></div>
+              <div><span>Based in</span><strong>Bangladesh</strong></div>
             </Reveal>
           </div>
-          <Reveal className="belief-line"><span>My rule</span><p>Understand the problem. Build the baseline. Measure honestly. Improve what matters.</p></Reveal>
         </section>
 
-        <section className="section stack" id="stack">
-          <SectionTitle index="03" label="Capabilities" title="A stack built for making." />
-          <div className="stack-list">
-            {stack.map((group, index) => (
-              <Reveal className="stack-row" key={group.title} delay={index * 0.06}>
-                <span className="stack-number">{group.number}</span>
-                <group.icon className="stack-icon" strokeWidth={1.35} />
-                <div className="stack-title"><h3>{group.title}</h3><p>{group.summary}</p></div>
-                <div className="stack-tools">{group.tools.map((tool) => <span key={tool}>{tool}</span>)}</div>
-              </Reveal>
-            ))}
+        <section className="capabilities" id="capabilities">
+          <div className="section-shell">
+            <SectionHeading number="04" label="Capabilities" title="Tools change. Good judgement endures." />
+            <div className="capability-list">
+              {capabilities.map((capability, index) => (
+                <Reveal className="capability-row" key={capability.label} delay={index * 0.07}>
+                  <span className="capability-number">0{index + 1}</span>
+                  <div className="capability-title"><h3>{capability.label}</h3><p>{capability.note}</p></div>
+                  <div className="capability-tools">{capability.items.map((item) => <span key={item}>{item}</span>)}</div>
+                  <i className="capability-line" />
+                </Reveal>
+              ))}
+            </div>
           </div>
         </section>
 
-        <section className="section practice" id="practice">
-          <SectionTitle index="04" label="The numbers" title="Consistency compounds." />
-          <div className="metrics">
-            <Reveal className="metric metric-featured"><span>01</span><strong>600<sup>+</sup></strong><p>LeetCode problems solved across difficulty levels.</p></Reveal>
-            <Reveal className="metric"><span>02</span><strong>142</strong><p>Codeforces problems and counting.</p></Reveal>
-            <Reveal className="metric"><span>03</span><strong>3.90</strong><p>CGPA out of 4.00 in Computer Science.</p></Reveal>
-            <Reveal className="metric metric-note"><span>Always</span><p>Learning through algorithms, Kaggle experiments, and building complete products.</p></Reveal>
+        <section className="practice section-shell" id="practice">
+          <SectionHeading number="05" label="Practice" title="The quiet work behind the work." />
+          <div className="practice-ledger">
+            <Reveal className="practice-intro"><p>Progress is less dramatic than it looks. It is built through repetition: solve, test, read, make, return.</p></Reveal>
+            <div className="practice-stats">
+              <Reveal className="practice-stat"><span>01</span><strong>600<sup>+</sup></strong><p>LeetCode problems solved</p></Reveal>
+              <Reveal className="practice-stat" delay={0.05}><span>02</span><strong>142</strong><p>Codeforces problems solved</p></Reveal>
+              <Reveal className="practice-stat" delay={0.1}><span>03</span><strong>3.90</strong><p>Academic CGPA / 4.00</p></Reveal>
+            </div>
           </div>
-          <Reveal className="profile-links">
-            <a href="https://leetcode.com/u/ash-rafhamid" target="_blank" rel="noreferrer">LeetCode <ArrowUpRight size={15} /></a>
-            <a href="https://github.com/ash-rafhamid" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={15} /></a>
-            <a href="https://linkedin.com/in/ashrafhamid096" target="_blank" rel="noreferrer">LinkedIn <ArrowUpRight size={15} /></a>
+          <Reveal className="archive-links">
+            <span>Public archives</span>
+            <a href="https://leetcode.com/u/ash-rafhamid" target="_blank" rel="noreferrer">LeetCode <ArrowUpRight size={14} /></a>
+            <a href="https://github.com/ash-rafhamid" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={14} /></a>
+            <a href="https://linkedin.com/in/ashrafhamid096" target="_blank" rel="noreferrer">LinkedIn <ArrowUpRight size={14} /></a>
           </Reveal>
         </section>
 
         <section className="contact" id="contact">
           <Reveal className="contact-inner">
-            <div className="contact-meta"><span>05 / Contact</span><span><i /> Available for good work</span></div>
-            <h2>Have a hard problem?<br /><em>Let&apos;s build the answer.</em></h2>
+            <div className="contact-top"><span>06 / Correspondence</span><span>Available for thoughtful work</span></div>
+            <h2>Let&apos;s make something<br /><em>worth remembering.</em></h2>
             <div className="contact-bottom">
-              <a className="contact-button" href="mailto:ashrafhamidmajumder@gmail.com?subject=Let%27s%20build%20something">Start a conversation <Send size={18} /></a>
-              <div className="contact-info">
-                <a href="mailto:ashrafhamidmajumder@gmail.com"><Mail size={16} /> ashrafhamidmajumder@gmail.com</a>
-                <span><MapPin size={16} /> Bangladesh</span>
+              <a className="contact-button" href="mailto:ashrafhamidmajumder@gmail.com?subject=Let%27s%20work%20together">Write to Ashraf <Send size={17} /></a>
+              <div className="contact-details">
+                <a href="mailto:ashrafhamidmajumder@gmail.com"><Mail size={15} /> ashrafhamidmajumder@gmail.com</a>
+                <span><MapPin size={15} /> Bangladesh / GMT+6</span>
               </div>
             </div>
           </Reveal>
@@ -356,9 +332,9 @@ function App() {
       </main>
 
       <footer className="site-footer">
-        <a href="#top" className="footer-brand">AHM<span>/26</span></a>
+        <a href="#top" className="footer-mark">AHM</a>
         <p>Software engineer / AI-ML builder / Android developer</p>
-        <a href="#top">Back to top <ArrowRight size={14} /></a>
+        <a href="#top">Return to the beginning <ArrowRight size={14} /></a>
       </footer>
     </MotionConfig>
   )
