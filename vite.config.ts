@@ -1,6 +1,6 @@
 import path from "path";
 import { fileURLToPath } from "url";
-import { copyFileSync, mkdirSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
@@ -20,11 +20,22 @@ export default defineConfig({
       apply: "build",
       closeBundle() {
         const serverDirectory = path.resolve(__dirname, "dist/server");
+        const clientDirectory = path.resolve(__dirname, "dist/client");
         mkdirSync(serverDirectory, { recursive: true });
+        mkdirSync(clientDirectory, { recursive: true });
         copyFileSync(
           path.resolve(__dirname, "worker/index.js"),
           path.resolve(serverDirectory, "index.js"),
         );
+        copyFileSync(
+          path.resolve(__dirname, "dist/index.html"),
+          path.resolve(clientDirectory, "index.html"),
+        );
+
+        const socialCard = path.resolve(__dirname, "dist/og.png");
+        if (existsSync(socialCard)) {
+          copyFileSync(socialCard, path.resolve(clientDirectory, "og.png"));
+        }
       },
     },
   ],
