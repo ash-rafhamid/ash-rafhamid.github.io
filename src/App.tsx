@@ -1,6 +1,6 @@
 import { AnimatePresence, MotionConfig, motion, useScroll, useSpring } from 'framer-motion'
-import { ArrowDown, ArrowRight, ArrowUpRight, Mail, MapPin, Menu, Send, X } from 'lucide-react'
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import { ArrowDown, ArrowRight, ArrowUpRight, Mail, MapPin, Menu, Moon, Send, Sun, X } from 'lucide-react'
+import { useEffect, useLayoutEffect, useState, type CSSProperties, type ReactNode } from 'react'
 
 const navigation = [
   { label: 'Selected work', href: '#work' },
@@ -68,6 +68,18 @@ const capabilities = [
 ]
 
 const ease = [0.22, 1, 0.36, 1] as const
+type Theme = 'light' | 'dark'
+
+function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') return 'light'
+  try {
+    const storedTheme = window.localStorage.getItem('ahm-theme')
+    if (storedTheme === 'light' || storedTheme === 'dark') return storedTheme
+  } catch {
+    // Continue with the visitor's system preference when storage is unavailable.
+  }
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
 
 function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
   return (
@@ -138,8 +150,20 @@ function ProjectMotif({ motif }: { motif: string }) {
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('work')
+  const [theme, setTheme] = useState<Theme>(getInitialTheme)
   const { scrollYProgress } = useScroll()
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 28, restDelta: 0.001 })
+
+  useLayoutEffect(() => {
+    document.documentElement.dataset.theme = theme
+    document.documentElement.style.colorScheme = theme
+    try {
+      window.localStorage.setItem('ahm-theme', theme)
+    } catch {
+      // The theme still works for this visit when storage is unavailable.
+    }
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#12110f' : '#eee9df')
+  }, [theme])
 
   useEffect(() => {
     const sections = navigation
@@ -178,10 +202,26 @@ function App() {
         <nav className="desktop-nav" aria-label="Primary navigation">
           {navigation.map((item) => <a key={item.href} href={item.href} className={activeSection === item.href.slice(1) ? 'active' : ''}>{item.label}</a>)}
         </nav>
-        <a className="header-link" href="mailto:ashrafhamidmajumder@gmail.com">Write to me <ArrowUpRight size={14} /></a>
-        <button className="menu-button" type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle navigation" aria-expanded={menuOpen} aria-controls="mobile-navigation">
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="header-actions">
+          <button
+            className="theme-toggle"
+            type="button"
+            onClick={() => setTheme((currentTheme) => currentTheme === 'light' ? 'dark' : 'light')}
+            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span key={theme} initial={{ opacity: 0, rotate: -45 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: 45 }} transition={{ duration: 0.2 }} aria-hidden="true">
+                {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+              </motion.span>
+            </AnimatePresence>
+            <i>{theme === 'light' ? 'Dark' : 'Light'}</i>
+          </button>
+          <a className="header-link" href="mailto:ashrafhamidmajumder@gmail.com">Write to me <ArrowUpRight size={14} /></a>
+          <button className="menu-button" type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle navigation" aria-expanded={menuOpen} aria-controls="mobile-navigation">
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
         <AnimatePresence>
           {menuOpen && (
             <motion.nav id="mobile-navigation" className="mobile-nav" aria-label="Mobile navigation" initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }} transition={{ duration: 0.35, ease }}>

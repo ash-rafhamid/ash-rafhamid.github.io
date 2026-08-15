@@ -13,6 +13,19 @@
     <meta property="og:image" content="https://ash-rafhamid.github.io/og.png" />
     <meta property="og:image:alt" content="Ashraf Hamid Mojumder — Software Engineer and AI/ML Builder" />
     <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      (() => {
+        try {
+          const savedTheme = localStorage.getItem('ahm-theme');
+          const theme = savedTheme === 'light' || savedTheme === 'dark'
+            ? savedTheme
+            : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+          document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#12110f' : '#eee9df');
+        } catch {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
