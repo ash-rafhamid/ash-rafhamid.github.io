@@ -1,70 +1,54 @@
-import { AnimatePresence, MotionConfig, motion, useScroll, useSpring } from 'framer-motion'
-import { ArrowDown, ArrowRight, ArrowUpRight, Mail, MapPin, Menu, Moon, Send, Sun, X } from 'lucide-react'
-import { useEffect, useLayoutEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import { AnimatePresence, MotionConfig, motion, useMotionValue, useScroll, useSpring } from 'framer-motion'
+import { ArrowDown, ArrowUpRight, Mail, MapPin, Menu, Moon, Send, Sun, X } from 'lucide-react'
+import { useEffect, useLayoutEffect, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
 
 const navigation = [
   { label: 'Selected work', href: '#work' },
-  { label: 'About', href: '#about' },
-  { label: 'Capabilities', href: '#capabilities' },
-  { label: 'Practice', href: '#practice' },
+  { label: 'Profile', href: '#profile' },
+  { label: 'Discipline', href: '#discipline' },
   { label: 'Contact', href: '#contact' },
 ]
 
 const projects = [
   {
-    number: '01',
+    number: 'I',
     title: 'LocalFix',
-    discipline: 'Android / Civic technology',
-    thesis: 'A clearer path from a local problem to collective action.',
+    field: 'Civic technology / Android',
+    thesis: 'Giving neighbourhood problems a clear route to collective action.',
     description:
-      'A community issue-reporting application designed around the simple act of noticing what needs attention. Residents document infrastructure problems, add evidence, vote, and help urgent reports rise.',
-    contributions: ['Image-led reports', 'Community voting', 'Firebase data layer', 'Location-ready design'],
-    tools: 'Android Studio, Java, Firebase, Maps API',
+      'A community issue-reporting application where residents document infrastructure problems, add evidence, vote, and help urgent reports rise.',
+    tools: ['Java', 'Firebase', 'Android', 'Maps API'],
     motif: 'map',
-    tone: 'paper',
+    annotation: 'Notice · document · gather · resolve',
   },
   {
-    number: '02',
+    number: 'II',
     title: 'Spam Classifier',
-    discipline: 'Machine learning / NLP',
-    thesis: 'A prediction is only useful when its reasoning has been measured.',
+    field: 'Machine learning / NLP',
+    thesis: 'A useful prediction begins with evidence, not confidence alone.',
     description:
-      'An end-to-end text classification pipeline covering preparation, TF-IDF feature extraction, model comparison, evaluation, and an interface for real-time message analysis.',
-    contributions: ['TF-IDF features', 'Three-model comparison', 'Measured evaluation', 'Streamlit interface'],
-    tools: 'Python, Scikit-learn, NLP, Streamlit',
+      'An end-to-end text classification study spanning preparation, TF-IDF features, three-model comparison, measured evaluation, and real-time analysis.',
+    tools: ['Python', 'Scikit-learn', 'NLP', 'Streamlit'],
     motif: 'classifier',
-    tone: 'ink',
+    annotation: 'Prepare · compare · measure · explain',
   },
   {
-    number: '03',
+    number: 'III',
     title: 'Hospital System',
-    discipline: 'Systems programming / C',
+    field: 'Systems programming / C',
     thesis: 'Reliable records, built patiently from first principles.',
     description:
-      'A file-backed management system for patient, doctor, and appointment records, created to strengthen low-level reasoning around persistence, validation, and durable workflows.',
-    contributions: ['Complete CRUD flow', 'Persistent storage', 'Custom structures', 'Input validation'],
-    tools: 'C, File handling, Data structures',
+      'A file-backed management system for patient, doctor, and appointment records, designed around persistence, validation, and dependable workflows.',
+    tools: ['C', 'File handling', 'Data structures', 'Validation'],
     motif: 'ledger',
-    tone: 'paper-deep',
+    annotation: 'Record · validate · persist · retrieve',
   },
 ]
 
-const capabilities = [
-  {
-    label: 'Intelligent systems',
-    note: 'Models that are tested before they are trusted.',
-    items: ['PyTorch', 'TensorFlow', 'Scikit-learn', 'NLP', 'Transformers', 'CNN', 'RNN', 'Pandas', 'NumPy'],
-  },
-  {
-    label: 'Software engineering',
-    note: 'Clear systems built on dependable fundamentals.',
-    items: ['Java', 'Python', 'C++', 'C', 'Spring Boot', 'REST APIs', 'SQL', 'Git'],
-  },
-  {
-    label: 'Mobile development',
-    note: 'Useful Android experiences for real workflows.',
-    items: ['Android Studio', 'Java', 'Firebase', 'XML', 'Google Maps API'],
-  },
+const disciplines = [
+  ['Intelligent systems', 'PyTorch · TensorFlow · Scikit-learn · NLP · Transformers · CNN · RNN'],
+  ['Software engineering', 'Java · Python · C++ · C · Spring Boot · REST APIs · SQL · Git'],
+  ['Mobile development', 'Android Studio · Java · Firebase · XML · Google Maps API'],
 ]
 
 const ease = [0.22, 1, 0.36, 1] as const
@@ -73,10 +57,10 @@ type Theme = 'light' | 'dark'
 function getInitialTheme(): Theme {
   if (typeof window === 'undefined') return 'light'
   try {
-    const storedTheme = window.localStorage.getItem('ahm-theme')
-    if (storedTheme === 'light' || storedTheme === 'dark') return storedTheme
+    const saved = window.localStorage.getItem('ahm-theme')
+    if (saved === 'light' || saved === 'dark') return saved
   } catch {
-    // Continue with the visitor's system preference when storage is unavailable.
+    // Use the system preference when storage is unavailable.
   }
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
@@ -85,66 +69,77 @@ function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; 
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 36 }}
+      initial={{ opacity: 0, y: 42 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.16 }}
-      transition={{ duration: 0.9, delay, ease }}
+      viewport={{ once: true, amount: 0.18 }}
+      transition={{ duration: 0.95, delay, ease }}
     >
       {children}
     </motion.div>
   )
 }
 
-function SectionHeading({ number, label, title }: { number: string; label: string; title: string }) {
+function TypesetLine({ text, delay }: { text: string; delay: number }) {
   return (
-    <Reveal className="section-heading">
-      <div className="chapter-label"><span>{number}</span><span>{label}</span></div>
+    <span className="typeset-line" aria-label={text}>
+      {text.split('').map((letter, index) => (
+        <span className="letter-mask" aria-hidden="true" key={`${letter}-${index}`}>
+          <motion.i
+            initial={{ y: '112%', rotate: index % 2 ? 2 : -2 }}
+            animate={{ y: 0, rotate: 0 }}
+            transition={{ duration: 1.05, delay: delay + index * 0.045, ease }}
+          >
+            {letter}
+          </motion.i>
+        </span>
+      ))}
+    </span>
+  )
+}
+
+function Chapter({ number, eyebrow, title }: { number: string; eyebrow: string; title: string }) {
+  return (
+    <Reveal className="chapter">
+      <p><span>{number}</span>{eyebrow}</p>
       <h2>{title}</h2>
+      <i aria-hidden="true" />
     </Reveal>
   )
 }
 
-function MapMotif() {
+function ProjectPlate({ motif, number }: { motif: string; number: string }) {
   return (
-    <div className="project-motif map-motif" aria-hidden="true">
-      <span className="map-line line-a" /><span className="map-line line-b" /><span className="map-line line-c" />
-      <i className="location location-a"><b>12</b></i>
-      <i className="location location-b"><b>07</b></i>
-      <i className="location location-c"><b>24</b></i>
-      <div className="map-caption"><span>Issue density</span><strong>43 open reports</strong></div>
+    <div className={`project-plate plate-${motif}`} aria-hidden="true">
+      <div className="plate-head"><span>Working study</span><span>Plate {number}</span></div>
+      {motif === 'map' && (
+        <div className="map-study">
+          <span className="route route-one" /><span className="route route-two" /><span className="route route-three" />
+          <i className="map-node node-one"><b>12</b></i><i className="map-node node-two"><b>07</b></i><i className="map-node node-three"><b>24</b></i>
+          <em className="map-focus" />
+        </div>
+      )}
+      {motif === 'classifier' && (
+        <div className="classifier-study">
+          <div><span>Project notes for Monday</span><i>SAFE</i></div>
+          <div className="flagged"><span>Claim your prize today</span><i>SPAM</i></div>
+          <div><span>Your application update</span><i>SAFE</i></div>
+          <p><span>Measured confidence</span><b>98.4%</b></p>
+          <em className="reading-line" />
+        </div>
+      )}
+      {motif === 'ledger' && (
+        <div className="ledger-study">
+          <div className="ledger-label"><span>ID</span><span>Patient</span><span>Status</span></div>
+          <div><span>1024</span><span>Nadia Rahman</span><i>Checked in</i></div>
+          <div><span>1025</span><span>Fahim Islam</span><i>Waiting</i></div>
+          <div><span>1026</span><span>Samira Khan</span><i>Complete</i></div>
+          <div><span>1027</span><span>Adnan Karim</span><i>Waiting</i></div>
+          <em className="ledger-reader" />
+        </div>
+      )}
+      <div className="plate-foot"><span>Ashraf Hamid Mojumder</span><span>Dhaka / 2026</span></div>
     </div>
   )
-}
-
-function ClassifierMotif() {
-  return (
-    <div className="project-motif classifier-motif" aria-hidden="true">
-      <div className="message-line"><span>Project notes for Monday</span><i>SAFE</i></div>
-      <div className="message-line flagged"><span>Claim your prize today!!!</span><i>SPAM</i></div>
-      <div className="message-line"><span>Your application update</span><i>SAFE</i></div>
-      <div className="confidence"><span>Model confidence</span><strong>98.4%</strong><div><i /></div></div>
-      <b className="scan-line" />
-    </div>
-  )
-}
-
-function LedgerMotif() {
-  return (
-    <div className="project-motif ledger-motif" aria-hidden="true">
-      <div className="ledger-head"><span>ID</span><span>Patient</span><span>Status</span></div>
-      <div><span>1024</span><span>Nadia Rahman</span><i>Checked in</i></div>
-      <div><span>1025</span><span>Fahim Islam</span><i>Waiting</i></div>
-      <div><span>1026</span><span>Samira Khan</span><i>Complete</i></div>
-      <div><span>1027</span><span>Adnan Karim</span><i>Waiting</i></div>
-      <b className="ledger-cursor" />
-    </div>
-  )
-}
-
-function ProjectMotif({ motif }: { motif: string }) {
-  if (motif === 'map') return <MapMotif />
-  if (motif === 'classifier') return <ClassifierMotif />
-  return <LedgerMotif />
 }
 
 function App() {
@@ -153,6 +148,8 @@ function App() {
   const [theme, setTheme] = useState<Theme>(getInitialTheme)
   const { scrollYProgress } = useScroll()
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 28, restDelta: 0.001 })
+  const orbitX = useSpring(useMotionValue(0), { stiffness: 80, damping: 20 })
+  const orbitY = useSpring(useMotionValue(0), { stiffness: 80, damping: 20 })
 
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -160,9 +157,9 @@ function App() {
     try {
       window.localStorage.setItem('ahm-theme', theme)
     } catch {
-      // The theme still works for this visit when storage is unavailable.
+      // The choice still applies for the current visit.
     }
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#12110f' : '#eee9df')
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#11100e' : '#f1eadc')
   }, [theme])
 
   useEffect(() => {
@@ -174,39 +171,49 @@ function App() {
         const visible = entries.find((entry) => entry.isIntersecting)
         if (visible?.target.id) setActiveSection(visible.target.id)
       },
-      { rootMargin: '-32% 0px -60%', threshold: 0.05 },
+      { rootMargin: '-30% 0px -62%', threshold: 0.05 },
     )
     sections.forEach((section) => observer.observe(section))
     return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
-    const onEscape = (event: KeyboardEvent) => event.key === 'Escape' && setMenuOpen(false)
-    window.addEventListener('keydown', onEscape)
-    return () => window.removeEventListener('keydown', onEscape)
+    const closeMenu = (event: KeyboardEvent) => event.key === 'Escape' && setMenuOpen(false)
+    window.addEventListener('keydown', closeMenu)
+    return () => window.removeEventListener('keydown', closeMenu)
   }, [])
+
+  const moveOrbit = (event: ReactPointerEvent<HTMLElement>) => {
+    const bounds = event.currentTarget.getBoundingClientRect()
+    orbitX.set(((event.clientX - bounds.left) / bounds.width - 0.5) * 22)
+    orbitY.set(((event.clientY - bounds.top) / bounds.height - 0.5) * 16)
+  }
 
   return (
     <MotionConfig reducedMotion="user">
       <a className="skip-link" href="#main">Skip to content</a>
       <motion.div className="scroll-progress" style={{ scaleX: progress }} />
 
-      <div className="opening" aria-hidden="true">
-        {['I', 'II', 'III', 'IV'].map((number, index) => <span key={number} style={{ '--panel': index } as CSSProperties}><i>{number}</i></span>)}
+      <div className="folio-opening" aria-hidden="true">
+        {[0, 1, 2, 3].map((panel) => <span key={panel} style={{ '--panel': panel } as CSSProperties}><i>AHM</i></span>)}
       </div>
 
       <header className="site-header">
         <a className="wordmark" href="#top" aria-label="Ashraf Hamid Mojumder, home">
-          <span>AHM</span><i>Portfolio</i>
+          <b>AHM</b><span>Selected works</span>
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
-          {navigation.map((item) => <a key={item.href} href={item.href} className={activeSection === item.href.slice(1) ? 'active' : ''}>{item.label}</a>)}
+          {navigation.map((item, index) => (
+            <a key={item.href} href={item.href} className={activeSection === item.href.slice(1) ? 'active' : ''}>
+              <span>0{index + 1}</span>{item.label}
+            </a>
+          ))}
         </nav>
         <div className="header-actions">
           <button
             className="theme-toggle"
             type="button"
-            onClick={() => setTheme((currentTheme) => currentTheme === 'light' ? 'dark' : 'light')}
+            onClick={() => setTheme((current) => current === 'light' ? 'dark' : 'light')}
             aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
           >
@@ -217,9 +224,9 @@ function App() {
             </AnimatePresence>
             <i>{theme === 'light' ? 'Dark' : 'Light'}</i>
           </button>
-          <a className="header-link" href="mailto:ashrafhamidmajumder@gmail.com">Write to me <ArrowUpRight size={14} /></a>
+          <a className="header-mail" href="mailto:ashrafhamidmajumder@gmail.com">Correspondence <ArrowUpRight size={13} /></a>
           <button className="menu-button" type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle navigation" aria-expanded={menuOpen} aria-controls="mobile-navigation">
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            {menuOpen ? <X size={19} /> : <Menu size={19} />}
           </button>
         </div>
         <AnimatePresence>
@@ -232,149 +239,127 @@ function App() {
       </header>
 
       <main id="main">
-        <section className="hero" id="top">
-          <div className="hero-rule" aria-hidden="true"><span /></div>
-          <motion.p className="hero-overline" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.05, duration: 0.7 }}>A digital folio / Dhaka, Bangladesh</motion.p>
-          <div className="hero-title">
-            <h1 aria-label="Ashraf Hamid Mojumder">
-              {['Ashraf Hamid', 'Mojumder'].map((line, index) => (
-                <span key={line} className={index === 1 ? 'title-italic' : ''}>
-                  <motion.i initial={{ y: '112%' }} animate={{ y: 0 }} transition={{ duration: 1.05, delay: 0.58 + index * 0.13, ease }}>{line}</motion.i>
-                </span>
-              ))}
-            </h1>
-            <motion.span className="hero-edition" initial={{ opacity: 0, rotate: -8 }} animate={{ opacity: 1, rotate: -3 }} transition={{ delay: 1.15, duration: 0.7 }}>Est.<br />2024</motion.span>
+        <section className="title-page" id="top" onPointerMove={moveOrbit} onPointerLeave={() => { orbitX.set(0); orbitY.set(0) }}>
+          <div className="page-frame" aria-hidden="true"><i /><i /><i /><i /></div>
+          <div className="title-meta">
+            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.15, duration: 0.8 }}>A digital folio / Volume I</motion.span>
+            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.22, duration: 0.8 }}>Dhaka, Bangladesh / MMXXVI</motion.span>
           </div>
 
-          <motion.div className="hero-statement" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.12, duration: 0.8, ease }}>
-            <p>Software engineer building intelligent systems, dependable software, and useful Android experiences.</p>
-            <div className="hero-actions">
-              <a href="#work">Selected work <ArrowDown size={15} /></a>
-              <a href="mailto:ashrafhamidmajumder@gmail.com">Start a conversation</a>
-            </div>
+          <motion.div className="monogram-orbit" style={{ x: orbitX, y: orbitY }} initial={{ opacity: 0, scale: 0.72 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.4, delay: 0.65, ease }} aria-hidden="true">
+            <span className="orbit-ring" />
+            <span className="orbit-word north">Think</span><span className="orbit-word east">Measure</span><span className="orbit-word south">Build</span><span className="orbit-word west">Return</span>
+            <b>AHM</b>
           </motion.div>
 
-          <div className="hero-aside" aria-hidden="true">
-            <span>Think</span><span>Measure</span><span>Build</span>
+          <div className="hero-name">
+            <h1>
+              <TypesetLine text="ASHRAF" delay={0.62} />
+              <span className="name-interlude">
+                <motion.i initial={{ opacity: 0, scaleX: 0.4 }} animate={{ opacity: 1, scaleX: 1 }} transition={{ duration: 0.9, delay: 1.02, ease }} />
+                <motion.em initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.12, ease }}>Hamid</motion.em>
+                <motion.small initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 1.25 }}>Software engineer<br />AI / ML builder</motion.small>
+              </span>
+              <TypesetLine text="MOJUMDER" delay={0.82} />
+            </h1>
           </div>
-          <span className="hero-folio" aria-hidden="true">Folio No. 01</span>
+
+          <motion.div className="title-foot" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.52, duration: 0.8, ease }}>
+            <p>Intelligent systems, dependable software,<br />and useful Android experiences.</p>
+            <a href="#work">Enter the folio <ArrowDown size={14} /></a>
+          </motion.div>
+          <span className="edition-mark" aria-hidden="true">No. 01<br />Est. 2024</span>
         </section>
 
-        <section className="manifesto">
-          <Reveal className="manifesto-inner">
-            <p className="manifesto-index">01 / Point of view</p>
-            <p>I believe the best engineering feels <em>inevitable</em>: complex beneath the surface, clear in the hands of the person using it.</p>
+        <section className="prologue">
+          <div className="prologue-index"><span>Prologue</span><i /></div>
+          <Reveal className="prologue-copy">
+            <p>Engineering should feel <em>quietly inevitable</em>—complex beneath the surface, clear in the hands of the person using it.</p>
           </Reveal>
-          <div className="manifesto-line" aria-hidden="true"><span /></div>
+          <div className="prologue-marquee" aria-hidden="true"><span>Clarity · Evidence · Patience · Utility · Clarity · Evidence · Patience · Utility · </span></div>
         </section>
 
-        <section className="work" id="work">
-          <div className="section-shell">
-            <SectionHeading number="02" label="Selected work" title="Three studies in useful software." />
-          </div>
-          <div className="project-stack">
+        <section className="selected-work page-shell" id="work">
+          <Chapter number="01" eyebrow="Selected work" title="Studies in useful software." />
+          <div className="work-list">
             {projects.map((project, index) => (
               <motion.article
-                className={`project-page tone-${project.tone}`}
-                style={{ '--page-index': index } as CSSProperties}
-                key={project.number}
-                initial={{ opacity: 0.6, y: 70 }}
+                className="work-item"
+                key={project.title}
+                initial={{ opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.12 }}
-                transition={{ duration: 0.9, ease }}
+                viewport={{ once: true, amount: 0.14 }}
+                transition={{ duration: 1, delay: index * 0.06, ease }}
               >
-                <div className="page-head"><span>Case study / {project.number}</span><span>{project.discipline}</span></div>
-                <div className="page-grid">
-                  <div className="project-copy">
-                    <span className="project-number">{project.number}</span>
-                    <h3>{project.title}</h3>
-                    <p className="project-thesis">{project.thesis}</p>
-                    <p className="project-description">{project.description}</p>
-                  </div>
-                  <ProjectMotif motif={project.motif} />
-                  <div className="project-notes">
-                    <div><span>Contribution</span><ul>{project.contributions.map((item) => <li key={item}>{item}</li>)}</ul></div>
-                    <div><span>Tools</span><p>{project.tools}</p></div>
-                  </div>
+                <div className="work-copy">
+                  <div className="work-label"><span>{project.number}</span><p>{project.field}</p></div>
+                  <h3>{project.title}</h3>
+                  <p className="work-thesis">{project.thesis}</p>
+                  <p className="work-description">{project.description}</p>
+                  <div className="work-tools">{project.tools.map((tool) => <span key={tool}>{tool}</span>)}</div>
+                  <p className="work-annotation">{project.annotation}</p>
                 </div>
-                <div className="page-foot"><span>Ashraf Hamid Mojumder</span><span>{String(index + 1).padStart(2, '0')} / 03</span></div>
+                <ProjectPlate motif={project.motif} number={project.number} />
               </motion.article>
             ))}
           </div>
         </section>
 
-        <section className="about section-shell" id="about">
-          <SectionHeading number="03" label="About" title="A patient approach to difficult problems." />
-          <div className="about-grid">
-            <Reveal className="about-lead">
-              <p>I work where theory must become something real.</p>
-            </Reveal>
-            <Reveal className="about-copy" delay={0.1}>
+        <section className="profile page-shell" id="profile">
+          <Chapter number="02" eyebrow="Profile" title="Patient with problems. Precise with proof." />
+          <div className="profile-grid">
+            <Reveal className="profile-lead"><p>I work where theory has to become something <em>real.</em></p></Reveal>
+            <Reveal className="profile-body" delay={0.08}>
               <p>My foundation spans algorithms, machine learning, deep learning, backend systems, and Android development. I am most interested in the moment when an idea has to survive real data, real constraints, and real users.</p>
               <p>I care about honest evaluation, careful implementation, and solutions that earn their complexity.</p>
             </Reveal>
-            <Reveal className="about-facts" delay={0.16}>
-              <div><span>Education</span><strong>BSc in Computer Science</strong></div>
-              <div><span>Academic record</span><strong>3.90 / 4.00 CGPA</strong></div>
-              <div><span>Primary focus</span><strong>Applied AI & software systems</strong></div>
-              <div><span>Based in</span><strong>Bangladesh</strong></div>
+            <Reveal className="profile-facts" delay={0.14}>
+              <div><span>Education</span><b>BSc in Computer Science</b></div>
+              <div><span>Academic record</span><b>3.90 / 4.00 CGPA</b></div>
+              <div><span>Primary focus</span><b>Applied AI & software systems</b></div>
+              <div><span>Based in</span><b>Bangladesh</b></div>
             </Reveal>
           </div>
         </section>
 
-        <section className="capabilities" id="capabilities">
-          <div className="section-shell">
-            <SectionHeading number="04" label="Capabilities" title="Tools change. Good judgement endures." />
-            <div className="capability-list">
-              {capabilities.map((capability, index) => (
-                <Reveal className="capability-row" key={capability.label} delay={index * 0.07}>
-                  <span className="capability-number">0{index + 1}</span>
-                  <div className="capability-title"><h3>{capability.label}</h3><p>{capability.note}</p></div>
-                  <div className="capability-tools">{capability.items.map((item) => <span key={item}>{item}</span>)}</div>
-                  <i className="capability-line" />
+        <section className="discipline" id="discipline">
+          <div className="discipline-frame">
+            <Chapter number="03" eyebrow="Discipline" title="Tools change. Judgement endures." />
+            <div className="discipline-list">
+              {disciplines.map(([title, tools], index) => (
+                <Reveal className="discipline-row" key={title} delay={index * 0.08}>
+                  <span>0{index + 1}</span><h3>{title}</h3><p>{tools}</p><i aria-hidden="true" />
                 </Reveal>
               ))}
             </div>
-          </div>
-        </section>
-
-        <section className="practice section-shell" id="practice">
-          <SectionHeading number="05" label="Practice" title="The quiet work behind the work." />
-          <div className="practice-ledger">
-            <Reveal className="practice-intro"><p>Progress is less dramatic than it looks. It is built through repetition: solve, test, read, make, return.</p></Reveal>
-            <div className="practice-stats">
-              <Reveal className="practice-stat"><span>01</span><strong>600<sup>+</sup></strong><p>LeetCode problems solved</p></Reveal>
-              <Reveal className="practice-stat" delay={0.05}><span>02</span><strong>142</strong><p>Codeforces problems solved</p></Reveal>
-              <Reveal className="practice-stat" delay={0.1}><span>03</span><strong>3.90</strong><p>Academic CGPA / 4.00</p></Reveal>
-            </div>
-          </div>
-          <Reveal className="archive-links">
-            <span>Public archives</span>
-            <a href="https://leetcode.com/u/ash-rafhamid" target="_blank" rel="noreferrer">LeetCode <ArrowUpRight size={14} /></a>
-            <a href="https://github.com/ash-rafhamid" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={14} /></a>
-            <a href="https://linkedin.com/in/ashrafhamid096" target="_blank" rel="noreferrer">LinkedIn <ArrowUpRight size={14} /></a>
-          </Reveal>
-        </section>
-
-        <section className="contact" id="contact">
-          <Reveal className="contact-inner">
-            <div className="contact-top"><span>06 / Correspondence</span><span>Available for thoughtful work</span></div>
-            <h2>Let&apos;s make something<br /><em>worth remembering.</em></h2>
-            <div className="contact-bottom">
-              <a className="contact-button" href="mailto:ashrafhamidmajumder@gmail.com?subject=Let%27s%20work%20together">Write to Ashraf <Send size={17} /></a>
-              <div className="contact-details">
-                <a href="mailto:ashrafhamidmajumder@gmail.com"><Mail size={15} /> ashrafhamidmajumder@gmail.com</a>
-                <span><MapPin size={15} /> Bangladesh / GMT+6</span>
+            <div className="practice-register">
+              <Reveal className="register-intro"><span>Practice register</span><p>The quiet repetition behind every finished thing.</p></Reveal>
+              <div className="register-numbers">
+                <Reveal><strong>600<sup>+</sup></strong><p>LeetCode problems</p></Reveal>
+                <Reveal delay={0.06}><strong>142</strong><p>Codeforces problems</p></Reveal>
+                <Reveal delay={0.12}><strong>3.90</strong><p>Academic CGPA</p></Reveal>
               </div>
             </div>
-          </Reveal>
+          </div>
+        </section>
+
+        <section className="correspondence" id="contact">
+          <div className="correspondence-rule"><span>04 / Correspondence</span><span>Available for thoughtful work</span></div>
+          <Reveal className="correspondence-title"><p>Have a difficult idea?</p><h2>Let&apos;s give it<br /><em>good form.</em></h2></Reveal>
+          <div className="correspondence-foot">
+            <a className="write-button" href="mailto:ashrafhamidmajumder@gmail.com?subject=Let%27s%20work%20together">Write to Ashraf <Send size={16} /></a>
+            <div>
+              <a href="mailto:ashrafhamidmajumder@gmail.com"><Mail size={14} /> ashrafhamidmajumder@gmail.com</a>
+              <span><MapPin size={14} /> Bangladesh / GMT+6</span>
+            </div>
+          </div>
         </section>
       </main>
 
       <footer className="site-footer">
-        <a href="#top" className="footer-mark">AHM</a>
+        <a href="#top">AHM</a>
         <p>Software engineer / AI-ML builder / Android developer</p>
-        <a href="#top">Return to the beginning <ArrowRight size={14} /></a>
+        <div><a href="https://github.com/ash-rafhamid" target="_blank" rel="noreferrer">GitHub</a><a href="https://linkedin.com/in/ashrafhamid096" target="_blank" rel="noreferrer">LinkedIn</a><a href="https://leetcode.com/u/ash-rafhamid" target="_blank" rel="noreferrer">LeetCode</a></div>
       </footer>
     </MotionConfig>
   )
