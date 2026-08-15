@@ -76,9 +76,9 @@ function getInitialTheme(): Theme {
     const storedTheme = window.localStorage.getItem('ahm-theme')
     if (storedTheme === 'light' || storedTheme === 'dark') return storedTheme
   } catch {
-    // Continue with the visitor's system preference when storage is unavailable.
+    // Fall back to the portfolio's light default when storage is unavailable.
   }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  return 'light'
 }
 
 function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
