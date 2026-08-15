@@ -32,7 +32,7 @@ export default defineConfig({
           path.resolve(clientDirectory, "index.html"),
         );
 
-        ["og.png", "og-port2.png"].forEach((filename) => {
+        ["og.png", "og-port2.png", "og-port3.png"].forEach((filename) => {
           const socialCard = path.resolve(__dirname, `dist/${filename}`);
           if (existsSync(socialCard)) {
             copyFileSync(socialCard, path.resolve(clientDirectory, filename));
