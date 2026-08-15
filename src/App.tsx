@@ -465,7 +465,20 @@ function App() {
           <span>AHM</span><i>Portfolio</i>
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
-          {navigation.map((item) => <a key={item.href} href={item.href} className={activeSection === item.href.slice(1) ? 'active' : ''}>{item.label}</a>)}
+          {navigation.map((item) => {
+            const isDuel = item.href === '#duel'
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                className={`${activeSection === item.href.slice(1) ? 'active' : ''}${isDuel ? ' nav-duel' : ''}`.trim()}
+                aria-label={isDuel ? 'Play Human versus Machine duel' : undefined}
+              >
+                {item.label}
+                {isDuel && <span className="nav-duel-cue" aria-hidden="true"><i />Play</span>}
+              </a>
+            )
+          })}
         </nav>
         <div className="header-actions">
           <button
@@ -490,7 +503,16 @@ function App() {
         <AnimatePresence>
           {menuOpen && (
             <motion.nav id="mobile-navigation" className="mobile-nav" aria-label="Mobile navigation" initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }} transition={{ duration: 0.35, ease }}>
-              {navigation.map((item, index) => <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}><span>0{index + 1}</span>{item.label}</a>)}
+              {navigation.map((item, index) => {
+                const isDuel = item.href === '#duel'
+                return (
+                  <a key={item.href} href={item.href} className={isDuel ? 'nav-duel' : undefined} aria-label={isDuel ? 'Play Human versus Machine duel' : undefined} onClick={() => setMenuOpen(false)}>
+                    <span className="mobile-nav-number">0{index + 1}</span>
+                    {item.label}
+                    {isDuel && <span className="nav-duel-cue" aria-hidden="true"><i />Play</span>}
+                  </a>
+                )
+              })}
             </motion.nav>
           )}
         </AnimatePresence>
