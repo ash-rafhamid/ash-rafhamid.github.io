@@ -32,10 +32,12 @@ export default defineConfig({
           path.resolve(clientDirectory, "index.html"),
         );
 
-        const socialCard = path.resolve(__dirname, "dist/og.png");
-        if (existsSync(socialCard)) {
-          copyFileSync(socialCard, path.resolve(clientDirectory, "og.png"));
-        }
+        ["og.png", "og-gallery.png"].forEach((filename) => {
+          const socialCard = path.resolve(__dirname, `dist/${filename}`);
+          if (existsSync(socialCard)) {
+            copyFileSync(socialCard, path.resolve(clientDirectory, filename));
+          }
+        });
       },
     },
   ],
