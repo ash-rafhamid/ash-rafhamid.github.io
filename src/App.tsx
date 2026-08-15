@@ -1,12 +1,13 @@
 import { AnimatePresence, MotionConfig, motion, useScroll, useSpring } from 'framer-motion'
 import { ArrowDown, ArrowRight, ArrowUpRight, Mail, MapPin, Menu, Moon, Send, Sun, X } from 'lucide-react'
-import { useEffect, useLayoutEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 
 const navigation = [
   { label: 'Selected work', href: '#work' },
   { label: 'About', href: '#about' },
   { label: 'Capabilities', href: '#capabilities' },
   { label: 'Practice', href: '#practice' },
+  { label: 'Duel', href: '#duel' },
   { label: 'Contact', href: '#contact' },
 ]
 
@@ -145,6 +146,270 @@ function ProjectMotif({ motif }: { motif: string }) {
   if (motif === 'map') return <MapMotif />
   if (motif === 'classifier') return <ClassifierMotif />
   return <LedgerMotif />
+}
+
+type DuelStatus = 'idle' | 'racing' | 'resolved' | 'complete'
+type DuelQuestion = { text: string; answer: number; choices: number[] }
+
+function HumanMachineDuel() {
+  const [status, setStatus] = useState<DuelStatus>('idle')
+  const [round, setRound] = useState(0)
+  const [humanScore, setHumanScore] = useState(0)
+  const [modelScore, setModelScore] = useState(0)
+  const [question, setQuestion] = useState<DuelQuestion | null>(null)
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
+  const [predictedMs, setPredictedMs] = useState(2850)
+  const [learningCount, setLearningCount] = useState(0)
+  const [accuracy, setAccuracy] = useState<string>('—')
+  const [verdict, setVerdict] = useState({
+    title: '',
+    detail: 'The model learns your speed after every answer, then tries to finish just before you.',
+  })
+
+  const roundRef = useRef(0)
+  const humanScoreRef = useRef(0)
+  const modelScoreRef = useRef(0)
+  const correctCountRef = useRef(0)
+  const answeredCountRef = useRef(0)
+  const questionRef = useRef<DuelQuestion | null>(null)
+  const activeRef = useRef(false)
+  const startedAtRef = useRef(0)
+  const biasRef = useRef(2850)
+  const difficultyWeightRef = useRef(430)
+  const difficultyRef = useRef(1)
+  const raceTimerRef = useRef<number | null>(null)
+  const advanceTimerRef = useRef<number | null>(null)
+
+  const clamp = (value: number, low: number, high: number) => Math.max(low, Math.min(high, value))
+  const randomInt = (low: number, high: number) => Math.floor(Math.random() * (high - low + 1)) + low
+
+  function createQuestion(difficulty: number): DuelQuestion {
+    let text = ''
+    let answer = 0
+
+    if (difficulty <= 1) {
+      const a = randomInt(8, 29)
+      const b = randomInt(7, 26)
+      answer = a + b
+      text = `${a} + ${b}`
+    } else if (difficulty === 2) {
+      const a = randomInt(4, 12)
+      const b = randomInt(3, 11)
+      answer = a * b
+      text = `${a} × ${b}`
+    } else {
+      const a = randomInt(5, 13)
+      const b = randomInt(4, 11)
+      const c = randomInt(4, 18)
+      answer = a * b - c
+      text = `${a} × ${b} − ${c}`
+    }
+
+    const choices = new Set([answer])
+    while (choices.size < 4) {
+      const offset = randomInt(-9, 9) || 2
+      choices.add(answer + offset)
+    }
+
+    return { text, answer, choices: [...choices].sort(() => Math.random() - 0.5) }
+  }
+
+  function getPredictedTime(difficulty: number) {
+    return clamp(biasRef.current + difficultyWeightRef.current * (difficulty - 1), 1450, 5200)
+  }
+
+  function trainSpeedModel(observedMs: number, difficulty: number) {
+    const prediction = getPredictedTime(difficulty)
+    const error = clamp(observedMs - prediction, -1800, 1800)
+    biasRef.current = clamp(biasRef.current + error * 0.22, 1300, 4500)
+    difficultyWeightRef.current = clamp(
+      difficultyWeightRef.current + error * 0.07 * (difficulty - 1),
+      140,
+      950,
+    )
+    setLearningCount(roundRef.current)
+  }
+
+  function endMatch() {
+    activeRef.current = false
+    setStatus('complete')
+    setQuestion(null)
+    setSelectedAnswer(null)
+    const human = humanScoreRef.current
+    const machine = modelScoreRef.current
+    if (human > machine) {
+      setVerdict({ title: 'You beat the model.', detail: 'Fast, accurate and difficult to predict.' })
+    } else if (human === machine) {
+      setVerdict({ title: 'Perfectly balanced.', detail: 'The model learned your pace, but could not pass you.' })
+    } else {
+      setVerdict({ title: 'The machine adapted.', detail: 'It learned your response time and won the match.' })
+    }
+  }
+
+  function beginRound() {
+    const nextRound = roundRef.current + 1
+    roundRef.current = nextRound
+    setRound(nextRound)
+    const difficulty = clamp(
+      1 + Math.floor((nextRound - 1) / 2) + (humanScoreRef.current > modelScoreRef.current ? 1 : 0),
+      1,
+      3,
+    )
+    difficultyRef.current = difficulty
+    const nextQuestion = createQuestion(difficulty)
+    questionRef.current = nextQuestion
+    setQuestion(nextQuestion)
+    setSelectedAnswer(null)
+    setVerdict({ title: '', detail: 'Choose the correct answer before the red line reaches the end.' })
+    const prediction = getPredictedTime(difficulty)
+    setPredictedMs(prediction)
+    setStatus('racing')
+    activeRef.current = true
+    startedAtRef.current = performance.now()
+    raceTimerRef.current = window.setTimeout(() => {
+      finishRound('model', prediction + 450, null)
+    }, prediction)
+  }
+
+  function finishRound(winner: 'human' | 'model', observedMs: number, selected: number | null) {
+    if (!activeRef.current || !questionRef.current) return
+    activeRef.current = false
+    if (raceTimerRef.current !== null) window.clearTimeout(raceTimerRef.current)
+    setSelectedAnswer(selected)
+    setStatus('resolved')
+    trainSpeedModel(observedMs, difficultyRef.current)
+
+    if (winner === 'human') {
+      humanScoreRef.current += 1
+      setHumanScore(humanScoreRef.current)
+      setVerdict({
+        title: 'Human wins the round.',
+        detail: `Answered in ${(observedMs / 1000).toFixed(2)} seconds.`,
+      })
+    } else {
+      modelScoreRef.current += 1
+      setModelScore(modelScoreRef.current)
+      setVerdict({
+        title: 'Machine wins the round.',
+        detail: `The answer was ${questionRef.current.answer}.`,
+      })
+    }
+
+    setAccuracy(
+      answeredCountRef.current
+        ? `${Math.round((correctCountRef.current / answeredCountRef.current) * 100)}%`
+        : '—',
+    )
+    advanceTimerRef.current = window.setTimeout(() => {
+      if (roundRef.current >= 5) endMatch()
+      else beginRound()
+    }, 1250)
+  }
+
+  function chooseAnswer(value: number) {
+    if (!activeRef.current || !questionRef.current) return
+    const elapsed = performance.now() - startedAtRef.current
+    answeredCountRef.current += 1
+    if (value === questionRef.current.answer) {
+      correctCountRef.current += 1
+      finishRound('human', elapsed, value)
+    } else {
+      finishRound('model', elapsed, value)
+    }
+  }
+
+  function startMatch() {
+    if (raceTimerRef.current !== null) window.clearTimeout(raceTimerRef.current)
+    if (advanceTimerRef.current !== null) window.clearTimeout(advanceTimerRef.current)
+    roundRef.current = 0
+    humanScoreRef.current = 0
+    modelScoreRef.current = 0
+    correctCountRef.current = 0
+    answeredCountRef.current = 0
+    biasRef.current = 2850
+    difficultyWeightRef.current = 430
+    setHumanScore(0)
+    setModelScore(0)
+    setAccuracy('—')
+    setLearningCount(0)
+    beginRound()
+  }
+
+  useEffect(() => () => {
+    if (raceTimerRef.current !== null) window.clearTimeout(raceTimerRef.current)
+    if (advanceTimerRef.current !== null) window.clearTimeout(advanceTimerRef.current)
+  }, [])
+
+  const finalEyebrow = humanScore > modelScore
+    ? 'Humanity prevails'
+    : humanScore === modelScore
+      ? 'A measured draw'
+      : 'The model adapted'
+
+  return (
+    <div
+      className={`duel-shell ${status === 'racing' ? 'is-racing' : ''}`}
+      style={{ '--duel-race-time': `${predictedMs}ms` } as CSSProperties}
+    >
+      <div className="duel-top"><strong>Human / Machine</strong><span>Adaptive mathematics duel</span></div>
+      <div className="duel-scoreboard">
+        <div className="duel-score"><span>You</span><output>{humanScore}</output></div>
+        <div className="duel-round">{round ? (status === 'complete' ? 'Match complete' : `Round ${round} / 5`) : 'Five-round match'}</div>
+        <div className="duel-score"><span>Model</span><output>{modelScore}</output></div>
+      </div>
+
+      <div className="duel-arena">
+        <div className="duel-model-line">
+          <span>Model predicts your response time</span>
+          <div className="duel-race-track" aria-hidden="true"><div className="duel-race-bar" /></div>
+          <span>{(predictedMs / 1000).toFixed(1)} sec</span>
+        </div>
+
+        <div className="duel-question-wrap" aria-live="polite">
+          <p className="duel-eyebrow">
+            {status === 'idle' ? 'Machine-learning speed trial' : status === 'complete' ? finalEyebrow : 'Answer before the model'}
+          </p>
+          <p className="duel-question" key={question?.text ?? status}>
+            {status === 'idle' ? 'Ready?' : status === 'complete' ? `${humanScore} — ${modelScore}` : `${question?.text} = ?`}
+          </p>
+        </div>
+
+        <div className="duel-answers" aria-label="Answer choices">
+          {question?.choices.map((choice) => {
+            const isCorrect = status === 'resolved' && choice === question.answer
+            const isWrong = status === 'resolved' && choice === selectedAnswer && choice !== question.answer
+            return (
+              <button
+                className={`duel-answer ${isCorrect ? 'is-correct' : ''} ${isWrong ? 'is-wrong' : ''}`}
+                type="button"
+                key={choice}
+                onClick={() => chooseAnswer(choice)}
+                disabled={status !== 'racing'}
+              >
+                {choice}
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="duel-verdict" aria-live="polite">
+          {verdict.title && <strong>{verdict.title}</strong>}
+          <span>{verdict.detail}</span>
+        </div>
+
+        {(status === 'idle' || status === 'complete') && (
+          <button className="duel-start" type="button" onClick={startMatch}>
+            {status === 'complete' ? 'Play another match' : 'Begin the duel'} <ArrowRight size={16} />
+          </button>
+        )}
+      </div>
+
+      <div className="duel-foot">
+        <span>Online regression model: <strong>{learningCount ? `${learningCount} observations` : 'untrained'}</strong></span>
+        <span>Accuracy: <strong>{accuracy}</strong></span>
+      </div>
+    </div>
+  )
 }
 
 function App() {
@@ -356,9 +621,16 @@ function App() {
           </Reveal>
         </section>
 
+        <section className="duel section-shell" id="duel">
+          <SectionHeading number="06" label="Interactive model" title="Can your instinct outrun a learning machine?" />
+          <Reveal>
+            <HumanMachineDuel />
+          </Reveal>
+        </section>
+
         <section className="contact" id="contact">
           <Reveal className="contact-inner">
-            <div className="contact-top"><span>06 / Correspondence</span><span>Available for thoughtful work</span></div>
+            <div className="contact-top"><span>07 / Correspondence</span><span>Available for thoughtful work</span></div>
             <h2>Let&apos;s make something<br /><em>worth remembering.</em></h2>
             <div className="contact-bottom">
               <a className="contact-button" href="mailto:ashrafhamidmajumder@gmail.com?subject=Let%27s%20work%20together">Write to Ashraf <Send size={17} /></a>
