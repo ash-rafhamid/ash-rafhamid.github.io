@@ -1,18 +1,26 @@
-# Ashraf Hamid Mojumder — Portfolio
+# Ashraf Hamid Mojumder — Research in Motion
 
 [View the live portfolio](https://ash-rafhamid.github.io/)
 
-A restrained, editorial portfolio presenting selected software engineering, machine learning, and Android work. The experience combines a classical typographic system with considered motion, responsive layouts, light and dark themes, and an interactive human-versus-machine mathematics duel.
+An editorial portfolio for Ashraf's software systems and applied machine-learning work. The experience uses a warm-white research-folio visual system, evidence-led project stories, purposeful motion, and two working interactive experiments.
 
-## Highlights
+## Selected systems
 
-- Editorial, typography-led interface with a cream-and-wine visual system
-- Selected case studies with focused project narratives
-- Interactive adaptive mathematics duel powered by an in-browser regression model
-- Responsive behavior across desktop, tablet, and mobile
-- Accessible navigation, semantic structure, and reduced-motion support
-- Light and dark themes with a persistent user preference
-- Single-file production output deployed through GitHub Pages
+- **CrashLens** — a self-hosted browser error-monitoring SDK, API, database, and dashboard
+- **AgentFence** — an explicitly labelled AI-agent permission concept with an interactive policy run
+- **Context Bridge** — a privacy-first local conversation export extension
+- **LocalFix** — an Android civic issue-reporting product build
+- **Spam Classifier** — an evaluated text-classification study
+- **Hospital System** — a foundational file-backed C system
+
+## Experience
+
+- Cinematic slash-and-name opening with a reduced-motion fallback
+- Filterable editorial system index and full-screen project narratives
+- Research ledger separating question, method, evidence, and outcome
+- Interactive AgentFence permission boundary
+- Adaptive Human–Machine mathematics latency study
+- Responsive navigation, keyboard focus states, and mobile layouts down to 320px
 
 ## Technology
 
@@ -20,18 +28,9 @@ A restrained, editorial portfolio presenting selected software engineering, mach
 - Vite
 - Framer Motion
 - Lucide React
-- CSS with responsive and theme-aware design tokens
+- Hand-authored responsive CSS
 
-## Portfolio Structure
-
-1. Selected work
-2. About
-3. Capabilities
-4. Practice
-5. Human versus Machine duel
-6. Contact
-
-## Local Development
+## Local development
 
 ```bash
 npm install
@@ -39,7 +38,7 @@ npm run dev
 npm run build
 ```
 
-The production build is written to `dist/` and deployed by the GitHub Pages workflow in `.github/workflows/static.yml`.
+The production build is written to `dist/` and deployed through the GitHub Pages workflow in `.github/workflows/static.yml`.
 
 ## Contact
 
