@@ -102,7 +102,7 @@ const Skills = () => {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="mt-12 p-8 bg-slate-900 dark:bg-slate-800 rounded-xl text-white text-center border border-slate-700"
         >
-          <p className="text-xl font-semibold mb-2">💡 Core Strength</p>
+          <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-slate-300">Core Strength</p>
           <p className="text-lg">
             I can build ML models from scratch using Python and have hands-on experience with classification, NLP, and
             comprehensive model evaluation

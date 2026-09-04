@@ -94,17 +94,17 @@ const MLShowcase = () => {
         >
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div>
-              <p className="text-4xl font-bold mb-2">🎯</p>
+              <p className="mb-2 text-sm font-semibold tracking-[0.2em] text-slate-400">01</p>
               <p className="font-semibold text-lg mb-1">Hands-On Experience</p>
               <p className="text-slate-300">Building ML models from scratch with Python</p>
             </div>
             <div>
-              <p className="text-4xl font-bold mb-2">📊</p>
+              <p className="mb-2 text-sm font-semibold tracking-[0.2em] text-slate-400">02</p>
               <p className="font-semibold text-lg mb-1">Model Lifecycle</p>
               <p className="text-slate-300">Complete pipeline: training, evaluation, deployment</p>
             </div>
             <div>
-              <p className="text-4xl font-bold mb-2">🚀</p>
+              <p className="mb-2 text-sm font-semibold tracking-[0.2em] text-slate-400">03</p>
               <p className="font-semibold text-lg mb-1">Continuous Learning</p>
               <p className="text-slate-300">Active on Kaggle, implementing latest research</p>
             </div>

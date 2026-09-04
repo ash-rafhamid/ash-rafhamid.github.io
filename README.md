@@ -1,62 +1,53 @@
-# Ashraf Hamid Mojumder - Portfolio Website
+# Ashraf Hamid Mojumder — Portfolio
 
-A modern, professional portfolio website showcasing expertise in Software Engineering, AI/ML, and Android Development.
+[View the live portfolio](https://ash-rafhamid.github.io/)
 
-## 🚀 Features
+A restrained, editorial portfolio presenting selected software engineering, machine learning, and Android work. The experience combines a classical typographic system with considered motion, responsive layouts, light and dark themes, and an interactive human-versus-machine mathematics duel.
 
-- **Modern Design**: Clean, professional UI with smooth animations
-- **Dark/Light Mode**: Toggle between themes for better user experience
-- **Fully Responsive**: Optimized for mobile, tablet, and desktop
-- **Smooth Animations**: Built with Framer Motion for engaging interactions
-- **SEO Optimized**: Meta tags and semantic HTML for better search visibility
+## Highlights
 
-## 🛠️ Tech Stack
+- Editorial, typography-led interface with a cream-and-wine visual system
+- Selected case studies with focused project narratives
+- Interactive adaptive mathematics duel powered by an in-browser regression model
+- Responsive behavior across desktop, tablet, and mobile
+- Accessible navigation, semantic structure, and reduced-motion support
+- Light and dark themes with a persistent user preference
+- Single-file production output deployed through GitHub Pages
 
-- **Framework**: React 18 + TypeScript
-- **Styling**: Tailwind CSS
-- **Animations**: Framer Motion
-- **Icons**: Lucide React
-- **Build Tool**: Vite
+## Technology
 
-## 📂 Sections
+- React 19 and TypeScript
+- Vite
+- Framer Motion
+- Lucide React
+- CSS with responsive and theme-aware design tokens
 
-1. **Hero Section** - Introduction with name, title, and quick links
-2. **About Section** - Professional summary and highlights
-3. **Skills Section** - Comprehensive technical skills categorized by domain
-4. **Projects Section** - Featured projects with detailed descriptions
-5. **ML/AI Showcase** - Deep dive into AI/ML expertise and understanding
-6. **Achievements Section** - Problem-solving accomplishments
-7. **Contact Section** - Contact form and social links
+## Portfolio Structure
 
-## 🎨 Color Scheme
+1. Selected work
+2. About
+3. Capabilities
+4. Practice
+5. Human versus Machine duel
+6. Contact
 
-The portfolio uses a modern gradient color palette:
-- Primary: Blue (#3B82F6) to Purple (#9333EA)
-- Accent gradients for different sections
-- Clean whites/grays for light mode
-- Dark grays/blacks for dark mode
-
-## 📧 Contact
-
-- **Email**: ashrafhamidmajumder@gmail.com
-- **Phone**: +880 16425 40743
-- **LinkedIn**: [linkedin.com/in/ashrafhamid096](https://linkedin.com/in/ashrafhamid096)
-- **GitHub**: [github.com/ash-rafhamid](https://github.com/ash-rafhamid)
-- **LeetCode**: [leetcode.com/u/ash-rafhamid](https://leetcode.com/u/ash-rafhamid)
-
-## 🚀 Quick Start
+## Local Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Run development server
 npm run dev
-
-# Build for production
 npm run build
 ```
 
-## 📄 License
+The production build is written to `dist/` and deployed by the GitHub Pages workflow in `.github/workflows/static.yml`.
 
-© 2024 Ashraf Hamid Mojumder. All rights reserved.
+## Contact
+
+- [Email](mailto:ashrafhamidmajumder@gmail.com)
+- [LinkedIn](https://linkedin.com/in/ashrafhamid096)
+- [GitHub](https://github.com/ash-rafhamid)
+- [LeetCode](https://leetcode.com/u/ash-rafhamid)
+
+## License
+
+Copyright 2026 Ashraf Hamid Mojumder. All rights reserved.
