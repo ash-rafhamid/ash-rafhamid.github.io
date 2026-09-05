@@ -21,7 +21,7 @@ Paper titles, manuscript abstracts and acceptance information are supplied by th
 ## Experience
 
 - Responsive white-and-blue design with DM Sans and Instrument Serif.
-- A 2.65-second opening: a tilted line, a character-by-character name reveal, and a grey-to-white handoff. The portfolio stays hidden until the handoff; reduced-motion preferences skip the opening.
+- A three-second opening: a stationary tilted line draws in place, letters emerge from its centre, and charcoal fades into white. The portfolio stays hidden until the handoff; reduced-motion preferences skip the opening.
 - Animated typography, project previews and scroll entrances, with reduced-motion support.
 - Expandable manuscript abstracts and direct links to public research pages.
 - Skills grouped by languages, machine learning, web development and tools.

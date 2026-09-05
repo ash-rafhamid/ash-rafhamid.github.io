@@ -1,15 +1,31 @@
-import { useEffect, useLayoutEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 
 // Keep these deadlines aligned with the name, white wash, and handoff in CSS.
-const REVEAL_AT = 2150
-const FINISH_AT = 2650
+const REVEAL_AT = 2350
+const FINISH_AT = 3050
 const fullName = 'Ashraf Hamid Mojumder'
+const nameParts = ['Ashraf Hamid', 'Mojumder']
 type Phase = 'intro' | 'reveal' | 'done'
 
 export default function OpeningSequence({ children }: { children: ReactNode }) {
+  const lockup = useRef<HTMLDivElement>(null)
   const [phase, setPhase] = useState<Phase>(() =>
     window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'done' : 'intro',
   )
+
+  useLayoutEffect(() => {
+    if (!lockup.current) return
+    // Offset geometry is unaffected by the letters' animated transforms.
+    // Both halves start at the same stationary slash, behind their clipping edge.
+    lockup.current.querySelectorAll<HTMLElement>('.opening-name-half').forEach((half, side) => {
+      half.querySelectorAll<HTMLElement>('.opening-letter').forEach(letter => {
+        const distance = side === 0
+          ? half.clientWidth - letter.offsetLeft + 12
+          : -letter.offsetLeft - letter.offsetWidth - 12
+        letter.style.setProperty('--letter-origin', `${distance}px`)
+      })
+    })
+  }, [])
 
   useLayoutEffect(() => {
     if (phase === 'intro') document.documentElement.setAttribute('data-opening', '')
@@ -50,10 +66,12 @@ export default function OpeningSequence({ children }: { children: ReactNode }) {
 
   return <>
     {phase !== 'done' && <div className={`opening-sequence${phase === 'reveal' ? ' is-revealing' : ''}`} role="status" aria-label={`Welcome to ${fullName}’s portfolio`}>
-      <div className="opening-lockup" aria-hidden="true">
+      <div className="opening-lockup" ref={lockup} aria-hidden="true">
         <span className="opening-slash"><i /></span>
         <div className="opening-name">
-          {Array.from(fullName).map((letter, index) => <span key={index} style={{ '--letter-index': index } as CSSProperties}>{letter === ' ' ? '\u00a0' : letter}</span>)}
+          {nameParts.map((part, side) => <span className="opening-name-half" key={part}>
+            {Array.from(part).map((letter, index) => <span className="opening-letter" key={index} style={{ '--letter-index': index + (side === 0 ? 0 : nameParts[0].length) } as CSSProperties}>{letter === ' ' ? '\u00a0' : letter}</span>)}
+          </span>)}
         </div>
       </div>
     </div>}
