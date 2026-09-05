@@ -1,52 +1,47 @@
-# Ashraf Hamid Mojumder — Research in Motion
+# Ashraf Hamid Mojumder
 
-[View the live portfolio](https://ash-rafhamid.github.io/)
+[Visit the portfolio](https://ash-rafhamid.github.io/)
 
-An editorial portfolio for Ashraf's software systems and applied machine-learning work. The experience uses a warm-white research-folio visual system, evidence-led project stories, purposeful motion, and two working interactive experiments.
+A personal portfolio presenting software projects, publications and a practical development toolkit. Built with React, TypeScript, Vite, Framer Motion and custom CSS.
 
-## Selected systems
+## Selected projects
 
-- **CrashLens** — a self-hosted browser error-monitoring SDK, API, database, and dashboard
-- **AgentFence** — an explicitly labelled AI-agent permission concept with an interactive policy run
-- **Context Bridge** — a privacy-first local conversation export extension
-- **LocalFix** — an Android civic issue-reporting product build
-- **Spam Classifier** — an evaluated text-classification study
-- **Hospital System** — a foundational file-backed C system
+- **Context Bridge** — a privacy-first Chrome extension for exporting visible AI conversations locally.
+- **CrashLens** — a self-hosted browser error monitoring SDK, API and dashboard.
+
+## Research
+
+- **FD-Loss: Supervised Feature Decorrelation as a Scale-Invariant Replacement for Random Dropout** — ICML 2026, MusIML workshop. [ICML](https://icml.cc/virtual/2026/80194) · [OpenReview](https://openreview.net/forum?id=A5D2DVEM8U)
+- **An Explainable Ensemble Machine Learning Framework for Predicting IVIG Resistance in Kawasaki Disease** — accepted journal article. [DOI](https://doi.org/10.1016/j.meadig.2026.100056)
+- **Explaining Compound-Covariant Degradation in Gait Recognition through Feature-Space Collapse** — COMPAS 2026 manuscript; public link forthcoming.
+- **OtosFiNet: An Explainable Deep Learning-Based Approach for Automated Ear Disease Classification Using Otoscopic Images** — SPICSCON 2026 manuscript; public link forthcoming.
+
+Paper titles, manuscript abstracts and acceptance information are supplied by the author. Private conference submission pages are not used as public paper links.
 
 ## Experience
 
-- Cinematic slash-and-name opening with a reduced-motion fallback
-- Filterable editorial system index and full-screen project narratives
-- Research ledger separating question, method, evidence, and outcome
-- Interactive AgentFence permission boundary
-- Adaptive Human–Machine mathematics latency study
-- Responsive navigation, keyboard focus states, and mobile layouts down to 320px
+- Responsive white-and-blue design with DM Sans and Instrument Serif.
+- Animated typography, project previews and scroll entrances, with reduced-motion support.
+- Expandable manuscript abstracts and direct links to public research pages.
+- Skills grouped by languages, machine learning, web development and tools.
+- An optional adaptive mathematics duel, also reachable through `#duel`.
+- Keyboard-accessible mobile navigation, email links and a copy-email control.
 
-## Technology
-
-- React 19 and TypeScript
-- Vite
-- Framer Motion
-- Lucide React
-- Hand-authored responsive CSS
-
-## Local development
+## Development
 
 ```bash
 npm install
 npm run dev
+npx tsc --noEmit
 npm run build
 ```
 
-The production build is written to `dist/` and deployed through the GitHub Pages workflow in `.github/workflows/static.yml`.
+GitHub Actions builds the `dist/` directory and publishes it to GitHub Pages on updates to `main`.
 
 ## Contact
 
 - [Email](mailto:ashrafhamidmajumder@gmail.com)
-- [LinkedIn](https://linkedin.com/in/ashrafhamid096)
 - [GitHub](https://github.com/ash-rafhamid)
-- [LeetCode](https://leetcode.com/u/ash-rafhamid)
-
-## License
+- [LinkedIn](https://linkedin.com/in/ashrafhamid096)
 
 Copyright 2026 Ashraf Hamid Mojumder. All rights reserved.
