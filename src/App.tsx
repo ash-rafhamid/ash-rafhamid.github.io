@@ -3,6 +3,7 @@ import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Code2, Copy, F
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { contact, publications, skills, type Publication } from './portfolio'
 import HumanMachineStudy from './HumanMachineStudy'
+import OpeningSequence from './OpeningSequence'
 
 const ease = [0.22, 1, 0.36, 1] as const
 const nav = [{ label: 'Work', href: '#work' }, { label: 'Publications', href: '#publications' }, { label: 'About', href: '#about' }]
@@ -143,5 +144,5 @@ function Contact() {
 }
 
 export default function App() {
-  return <MotionConfig reducedMotion="user"><div className="folio"><a className="skip-link" href="#main">Skip to content</a><Header /><main id="main"><Hero /><Work /><Publications /><About /><Contact /></main><footer className="footer section-width"><a className="signature" href="#home">ashraf<span>.</span></a><p>© {new Date().getFullYear()} Ashraf Hamid Mojumder</p><a href="#home">Back to top <ArrowRight size={15} /></a></footer></div></MotionConfig>
+  return <MotionConfig reducedMotion="user"><OpeningSequence><div className="folio"><a className="skip-link" href="#main">Skip to content</a><Header /><main id="main"><Hero /><Work /><Publications /><About /><Contact /></main><footer className="footer section-width"><a className="signature" href="#home">ashraf<span>.</span></a><p>© {new Date().getFullYear()} Ashraf Hamid Mojumder</p><a href="#home">Back to top <ArrowRight size={15} /></a></footer></div></OpeningSequence></MotionConfig>
 }
