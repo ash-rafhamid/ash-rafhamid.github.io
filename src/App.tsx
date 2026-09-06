@@ -1,12 +1,12 @@
 import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'framer-motion'
-import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Code2, Copy, FileText, Menu, Plus, X } from 'lucide-react'
+import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Code2, Copy, FileText, Menu, Play, Plus, X } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { contact, publications, skills, type Publication } from './portfolio'
 import HumanMachineStudy from './HumanMachineStudy'
 import OpeningSequence from './OpeningSequence'
 
 const ease = [0.22, 1, 0.36, 1] as const
-const nav = [{ label: 'Work', href: '#work' }, { label: 'Publications', href: '#publications' }, { label: 'About', href: '#about' }]
+const nav = [{ label: 'Work', href: '#work' }, { label: 'Publications', href: '#publications' }, { label: 'About', href: '#about' }, { label: 'Play', href: '#duel' }]
 
 function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
   const reduced = useReducedMotion()
@@ -14,6 +14,7 @@ function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; 
 }
 
 function Header() {
+  const reduced = useReducedMotion()
   const [open, setOpen] = useState(false)
   const toggle = useRef<HTMLButtonElement>(null)
   const navigation = useRef<HTMLElement>(null)
@@ -33,12 +34,12 @@ function Header() {
     return () => { document.body.style.overflow = previous; window.removeEventListener('keydown', close); toggle.current?.focus() }
   }, [open])
   return <header className="navigation">
-    <a className="signature" href="#home" aria-label="Ashraf, home">ashraf<span aria-hidden="true">.</span></a>
-    <nav className="desktop-navigation" aria-label="Main navigation">{nav.map(item => <a href={item.href} key={item.href}>{item.label}</a>)}</nav>
+    <a className="signature signature-animated" href="#home" aria-label="Ashraf, home"><span className="signature-letters" aria-hidden="true">{Array.from('ashraf.').map((letter, index) => <motion.span className={letter === '.' ? 'signature-dot' : 'signature-letter'} key={index} initial={reduced ? false : { opacity: 0, y: '100%', rotate: -9 }} animate={{ opacity: 1, y: 0, rotate: 0 }} transition={{ duration: .6, delay: .3 + index * .05, ease }}>{letter}</motion.span>)}</span></a>
+    <nav className="desktop-navigation" aria-label="Main navigation">{nav.map(item => <a className={item.href === '#duel' ? 'nav-play' : undefined} href={item.href} key={item.href} onClick={() => { if (item.href === '#duel') window.dispatchEvent(new Event('portfolio:play')) }}>{item.href === '#duel' && <Play size={12} fill="currentColor" />}{item.label}</a>)}</nav>
     <a className="nav-contact" href="#contact">Let’s talk <ArrowUpRight size={16} /></a>
     <button ref={toggle} className="menu-toggle" type="button" aria-expanded={open} aria-controls="mobile-navigation" aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button>
     <AnimatePresence>{open && <motion.nav ref={navigation} id="mobile-navigation" className="mobile-navigation" aria-label="Mobile navigation" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.24 }}>
-      <p>Take a look around.</p>{[...nav, { label: 'Get in touch', href: '#contact' }].map((item, index) => <a href={item.href} key={item.href} onClick={() => setOpen(false)}><span>0{index + 1}</span>{item.label}<ArrowUpRight /></a>)}<span className="menu-location">Dhaka, Bangladesh</span>
+      <p>Take a look around.</p>{[...nav, { label: 'Get in touch', href: '#contact' }].map((item, index) => <a href={item.href} key={item.href} onClick={() => { setOpen(false); if (item.href === '#duel') window.dispatchEvent(new Event('portfolio:play')) }}><span>0{index + 1}</span>{item.label}<ArrowUpRight /></a>)}<span className="menu-location">Dhaka, Bangladesh</span>
     </motion.nav>}</AnimatePresence>
   </header>
 }
@@ -120,14 +121,16 @@ function About() {
   const [showDuel, setShowDuel] = useState(false)
   useEffect(() => {
     const revealHash = () => { if (window.location.hash === '#duel') setShowDuel(true) }
+    const openGame = () => setShowDuel(true)
     revealHash()
     window.addEventListener('hashchange', revealHash)
-    return () => window.removeEventListener('hashchange', revealHash)
+    window.addEventListener('portfolio:play', openGame)
+    return () => { window.removeEventListener('hashchange', revealHash); window.removeEventListener('portfolio:play', openGame) }
   }, [])
   return <section className="about-section section-width" id="about" aria-labelledby="about-title">
     <Reveal className="about-layout"><div className="about-heading"><p className="eyebrow">A bit about me</p><h2 id="about-title">Built on curiosity.<br /><em>Kept going by craft.</em></h2></div><div className="about-copy"><p>I’m Ashraf, a Computer Science and Engineering student in Dhaka. I enjoy moving between the practical work of building software and the open questions of machine learning.</p><p>Some days that means making a browser extension feel effortless. On others, it means investigating why a model loses its footing. The part I enjoy most is turning what I learn into something clear and useful.</p><div className="about-links"><a href={contact.github} target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={15} /></a><a href={contact.linkedin} target="_blank" rel="noreferrer">LinkedIn <ArrowUpRight size={15} /></a><a href="https://leetcode.com/u/ash-rafhamid" target="_blank" rel="noreferrer">LeetCode <ArrowUpRight size={15} /></a></div></div></Reveal>
     <div className="skills-section" id="skills"><Reveal className="skills-heading"><h3>My working toolkit<span>.</span></h3><p>The right tool for the question in front of me.</p></Reveal><div className="skills-grid">{skills.map((group, index) => <Reveal className="skill-group" delay={index * 0.04} key={group.title}><span className="skill-number">0{index + 1}</span><h4>{group.title}</h4><p>{group.description}</p><div className="skill-tags">{group.items.map(skill => <span key={skill}>{skill}</span>)}</div></Reveal>)}</div></div>
-    <div className="play-detour" id="duel"><button type="button" className="duel-disclosure" onClick={() => setShowDuel(!showDuel)} aria-expanded={showDuel} aria-controls="math-duel"><span><span className="play-label">A small detour</span><strong>You, a little maths, and an adaptive opponent.</strong></span><span>{showDuel ? 'Close' : 'Play a round'}<ChevronDown className={showDuel ? 'is-expanded' : ''} size={18} /></span></button><div id="math-duel" hidden={!showDuel}>{showDuel && <HumanMachineStudy />}</div></div>
+    <div className="play-detour" id="duel"><button type="button" className="duel-disclosure" onClick={() => setShowDuel(!showDuel)} aria-expanded={showDuel} aria-controls="math-duel"><span><span className="play-label"><Play size={12} fill="currentColor" />Take the challenge</span><strong>Think you can beat the machine?</strong><span className="play-description">Five rounds. An adaptive opponent. Your next personal best.</span></span><span>{showDuel ? 'Close game' : 'Let’s play'}<ChevronDown className={showDuel ? 'is-expanded' : ''} size={18} /></span></button><div id="math-duel" hidden={!showDuel}>{showDuel && <HumanMachineStudy />}</div></div>
   </section>
 }
 

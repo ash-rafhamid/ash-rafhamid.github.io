@@ -62,6 +62,8 @@ export const publications: Publication[] = [
 export const skills = [
   { title: 'Languages', description: 'From a quick experiment to a complete application.', items: ['Python', 'JavaScript', 'TypeScript', 'Java', 'C', 'C++', 'SQL'] },
   { title: 'AI & machine learning', description: 'Training, evaluating and understanding models.', items: ['PyTorch', 'TensorFlow', 'Scikit-learn', 'Pandas', 'NumPy', 'Computer vision', 'Explainable AI'] },
-  { title: 'Web & product', description: 'Interfaces and systems that work together.', items: ['React', 'Next.js', 'Node.js', 'Express', 'PostgreSQL', 'REST APIs', 'Chrome extensions'] },
-  { title: 'Development tools', description: 'The everyday toolkit behind the work.', items: ['Git', 'GitHub', 'Firebase', 'Android Studio', 'Streamlit'] },
+  { title: 'Generative AI', description: 'Building applications around language models.', items: ['Generative AI', 'LangChain', 'LangGraph'] },
+  { title: 'Web & backend', description: 'Interfaces and services that work together.', items: ['React', 'Next.js', 'Java', 'Spring Boot', 'Node.js', 'Express', 'PostgreSQL', 'REST APIs'] },
+  { title: 'Cloud & platforms', description: 'Connecting products to services and infrastructure.', items: ['AWS', 'Firebase', 'Chrome extensions', 'Android Studio'] },
+  { title: 'Development tools', description: 'The everyday toolkit behind the work.', items: ['Git', 'GitHub', 'Streamlit'] },
 ]

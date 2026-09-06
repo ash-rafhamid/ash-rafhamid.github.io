@@ -21,11 +21,11 @@ Paper titles, manuscript abstracts and acceptance information are supplied by th
 ## Experience
 
 - Responsive white-and-blue design with DM Sans and Instrument Serif.
-- A three-second opening: a stationary tilted line draws in place, letters emerge from its centre, and charcoal fades into white. The portfolio stays hidden until the handoff; reduced-motion preferences skip the opening.
+- A short opening: a stationary tilted line releases the name, the letters return into the line, and the header wordmark assembles as charcoal fades into white. Reduced-motion preferences skip the opening.
 - Animated typography, project previews and scroll entrances, with reduced-motion support.
 - Expandable manuscript abstracts and direct links to public research pages.
-- Skills grouped by languages, machine learning, web development and tools.
-- An optional adaptive mathematics duel, also reachable through `#duel`.
+- Skills grouped by languages, machine learning, generative AI, web/backend, cloud/platforms and tools, including LangChain, LangGraph, Spring Boot and AWS.
+- A highlighted adaptive mathematics duel with Sprint, Expert and untimed Practice modes, speed/streak bonuses, per-mode local best scores, keyboard controls, pause/resume and round-by-round feedback. A small online regression model learns only from correct completed answers; timeouts are not treated as measured samples.
 - Keyboard-accessible mobile navigation, email links and a copy-email control.
 
 ## Development
@@ -34,6 +34,7 @@ Paper titles, manuscript abstracts and acceptance information are supplied by th
 npm install
 npm run dev
 npx tsc --noEmit
+node scripts/verify-duel.mjs
 npm run build
 ```
 

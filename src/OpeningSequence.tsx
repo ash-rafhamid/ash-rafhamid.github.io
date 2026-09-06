@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 
 // Keep these deadlines aligned with the name, white wash, and handoff in CSS.
-const REVEAL_AT = 2350
-const FINISH_AT = 3050
+const REVEAL_AT = 2550
+const FINISH_AT = 3250
 const fullName = 'Ashraf Hamid Mojumder'
 const nameParts = ['Ashraf Hamid', 'Mojumder']
 type Phase = 'intro' | 'reveal' | 'done'
@@ -70,7 +70,10 @@ export default function OpeningSequence({ children }: { children: ReactNode }) {
         <span className="opening-slash"><i /></span>
         <div className="opening-name">
           {nameParts.map((part, side) => <span className="opening-name-half" key={part}>
-            {Array.from(part).map((letter, index) => <span className="opening-letter" key={index} style={{ '--letter-index': index + (side === 0 ? 0 : nameParts[0].length) } as CSSProperties}>{letter === ' ' ? '\u00a0' : letter}</span>)}
+            {Array.from(part).map((letter, index) => {
+              const order = index + (side === 0 ? 0 : nameParts[0].length)
+              return <span className="opening-letter" key={index} style={{ '--letter-index': order, '--letter-return-delay': `${1.72 + (19 - order) * .012}s` } as CSSProperties}>{letter === ' ' ? '\u00a0' : letter}</span>
+            })}
           </span>)}
         </div>
       </div>
