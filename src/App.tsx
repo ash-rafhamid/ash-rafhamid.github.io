@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { contact, publications, skills, type Publication } from './portfolio'
 import HumanMachineStudy from './HumanMachineStudy'
 import OpeningSequence from './OpeningSequence'
+import AnimatedSignature from './AnimatedSignature'
 
 const ease = [0.22, 1, 0.36, 1] as const
 const nav = [{ label: 'Work', href: '#work' }, { label: 'Publications', href: '#publications' }, { label: 'About', href: '#about' }, { label: 'Play', href: '#duel' }]
@@ -14,7 +15,6 @@ function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; 
 }
 
 function Header() {
-  const reduced = useReducedMotion()
   const [open, setOpen] = useState(false)
   const toggle = useRef<HTMLButtonElement>(null)
   const navigation = useRef<HTMLElement>(null)
@@ -34,7 +34,7 @@ function Header() {
     return () => { document.body.style.overflow = previous; window.removeEventListener('keydown', close); toggle.current?.focus() }
   }, [open])
   return <header className="navigation">
-    <a className="signature signature-animated" href="#home" aria-label="Ashraf, home"><span className="signature-letters" aria-hidden="true">{Array.from('ashraf.').map((letter, index) => <motion.span className={letter === '.' ? 'signature-dot' : 'signature-letter'} key={index} initial={reduced ? false : { opacity: 0, y: '100%', rotate: -9 }} animate={{ opacity: 1, y: 0, rotate: 0 }} transition={{ duration: .6, delay: .3 + index * .05, ease }}>{letter}</motion.span>)}</span></a>
+    <AnimatedSignature />
     <nav className="desktop-navigation" aria-label="Main navigation">{nav.map(item => <a className={item.href === '#duel' ? 'nav-play' : undefined} href={item.href} key={item.href} onClick={() => { if (item.href === '#duel') window.dispatchEvent(new Event('portfolio:play')) }}>{item.href === '#duel' && <Play size={12} fill="currentColor" />}{item.label}</a>)}</nav>
     <a className="nav-contact" href="#contact">Let’s talk <ArrowUpRight size={16} /></a>
     <button ref={toggle} className="menu-toggle" type="button" aria-expanded={open} aria-controls="mobile-navigation" aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button>

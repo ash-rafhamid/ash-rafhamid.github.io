@@ -112,9 +112,25 @@ button { cursor: pointer; }
 .navigation { position: relative; z-index: 20; display: flex; width: min(100%, 1392px); height: 110px; margin-inline: auto; padding-inline: clamp(22px, 5vw, 72px); align-items: center; justify-content: space-between; }
 .signature { display: inline-flex; gap: 1px; min-height: 44px; align-items: baseline; font-size: 2.15rem; font-weight: 700; letter-spacing: -.085em; }
 .signature span { color: var(--blue); }
-.signature .signature-letters { display: inline-flex; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; color: var(--ink); }
+.signature .signature-lockup { position: relative; display: inline-flex; color: var(--ink); animation: signature-arrive .7s .2s var(--ease) both; }
+.signature .signature-letters { position: relative; display: inline-flex; padding-right: 18px; line-height: 1.45; color: var(--ink); clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
 .signature .signature-letter { display: inline-block; color: inherit; }
 .signature .signature-dot { display: inline-block; color: var(--blue); }
+.signature [data-signature-letter] { flex: none; animation: signature-letter-loop 5.2s var(--signature-delay) infinite; will-change: transform; }
+.signature .signature-slit { position: absolute; right: 5px; top: 0; width: 1.25px; height: 100%; color: var(--ink); transform: rotate(11.35deg); pointer-events: none; }
+.signature-slit i { display: block; width: 100%; height: 100%; background: currentColor; border-radius: 2px; transform: scaleY(0); animation: signature-slit-loop 5.2s infinite; }
+@keyframes signature-arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+/* Each glyph crosses the same angled clipping edge and returns through it. */
+@keyframes signature-letter-loop {
+  0%, 30% { transform: translate3d(0, 0, 0); animation-timing-function: cubic-bezier(.65, 0, .35, 1); }
+  46%, 53% { transform: translate3d(var(--signature-travel, 120px), 0, 0); animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+  76%, 100% { transform: translate3d(0, 0, 0); }
+}
+@keyframes signature-slit-loop {
+  0%, 19% { transform: scaleY(0); opacity: 0; animation-timing-function: var(--ease); }
+  29%, 78% { transform: scaleY(1); opacity: 1; animation-timing-function: var(--ease); }
+  89%, 100% { transform: scaleY(0); opacity: 0; }
+}
 .desktop-navigation .nav-play { gap: 6px; padding-inline: 13px; border-radius: 30px; color: var(--blue); background: #edf2ff; }
 .desktop-navigation .nav-play::after { display: none; }
 .nav-play svg { animation: play-invite .7s 1.1s ease-in-out 2; }
@@ -538,6 +554,8 @@ h2 em { font-family: var(--serif); font-weight: 400; letter-spacing: -.015em; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .signature .signature-lockup, .signature [data-signature-letter] { animation: none !important; transform: none; opacity: 1; }
+  .signature .signature-slit { display: none; }
   .opening-sequence { display: none; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
