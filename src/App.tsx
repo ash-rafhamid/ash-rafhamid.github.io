@@ -1,5 +1,5 @@
 import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'framer-motion'
-import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Code2, Copy, FileText, Menu, Play, Plus, X } from 'lucide-react'
+import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Code2, Copy, FileText, Menu, Play, Plus, Terminal, X } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { contact, publications, skills, type Publication } from './portfolio'
 import HumanMachineStudy from './HumanMachineStudy'
@@ -56,7 +56,7 @@ function Hero() {
       </div>
       <motion.aside className="desk-index" initial={reduced ? false : { opacity: 0, y: 25, rotate: 3 }} animate={{ opacity: 1, y: 0, rotate: 0 }} transition={{ delay: 0.42, duration: 1, ease }} aria-label="Portfolio at a glance">
         <div className="desk-heading"><span>On my desk</span><span className="desk-year">2026</span></div>
-        <a className="desk-item" href="#work"><span className="desk-number">01</span><div><strong>Things I’ve built</strong><span>Context Bridge & CrashLens</span></div><ArrowUpRight size={18} /></a>
+        <a className="desk-item" href="#work"><span className="desk-number">01</span><div><strong>Things I’ve built</strong><span>Ternyx, Context Bridge & CrashLens</span></div><ArrowUpRight size={18} /></a>
         <a className="desk-item" href="#publications"><span className="desk-number">02</span><div><strong>Questions I’m exploring</strong><span>Learning, vision & explainability</span></div><ArrowUpRight size={18} /></a>
         <a className="desk-item" href="#skills"><span className="desk-number">03</span><div><strong>The tools behind it</strong><span>Python, React, PyTorch & more</span></div><ArrowUpRight size={18} /></a>
         <div className="desk-note"><span className="handwritten">Small details. Real purpose.</span><span className="note-line" /></div>
@@ -77,8 +77,37 @@ function CrashLensPreview() {
 
 function Work() {
   return <section id="work" className="work-section section-width" aria-labelledby="work-title">
-    <Reveal className="section-top"><div><p className="eyebrow">Selected work</p><h2 id="work-title">Made to be <em>useful.</em></h2></div><p>Two projects. A shared idea:<br />make complicated things easier.</p></Reveal>
+    <Reveal className="section-top"><div><p className="eyebrow">Selected work</p><h2 id="work-title">Made to be <em>useful.</em></h2></div><p>Three projects. A shared idea:<br />make complicated things easier.</p></Reveal>
     <div className="work-grid">
+      <Reveal className="ternyx-feature">
+        <article className="ternyx-card" aria-labelledby="ternyx-title">
+          <div className="ternyx-copy">
+            <p className="eyebrow">Featured / AI coding agent</p>
+            <h3 id="ternyx-title">Ternyx</h3>
+            <p className="ternyx-lead">From a task<br />to <em>working code.</em></p>
+            <p>A model-agnostic coding agent for your terminal. It explores repositories, makes focused edits, and runs checks using your chosen local or cloud model.</p>
+            <div className="project-tags"><span>JavaScript</span><span>Node.js</span><span>LLM tool calling</span><span>MCP</span></div>
+            <a className="text-link" href="https://www.npmjs.com/package/ternyx-agent" target="_blank" rel="noreferrer">Explore on npm <ArrowUpRight size={16} /></a>
+          </div>
+          <div className="ternyx-demo">
+            <div className="ternyx-terminal" aria-label="Illustrative Ternyx coding workflow, not a live session">
+              <div className="ternyx-terminal-bar"><span><Terminal size={16} /> ternyx</span><span>Example workflow</span></div>
+              <div className="ternyx-terminal-body">
+                <p><span className="ternyx-prompt">ternyx ›</span> Add error handling to server.js</p>
+                <ol className="ternyx-steps">
+                  <li><span>01</span><div><strong>Read the context</strong><code>read_file server.js</code></div></li>
+                  <li><span>02</span><div><strong>Make a focused change</strong><code>edit_file server.js</code></div></li>
+                  <li><span>03</span><div><strong>Verify with your approval</strong><code>run_command node test.js</code></div></li>
+                </ol>
+                <p className="ternyx-terminal-note">Plan first. Build next. Resume anytime.</p>
+              </div>
+            </div>
+            <div className="ternyx-install"><span>Install the CLI</span><code>npm install -g ternyx-agent</code></div>
+            <p className="ternyx-requirements">Node.js 20+ · Bring a compatible model · No runtime dependencies</p>
+          </div>
+          <ul className="ternyx-capabilities"><li>Read-only planning</li><li>Workspace-scoped file tools</li><li>Resumable sessions</li><li>MCP server included</li></ul>
+        </article>
+      </Reveal>
       <Reveal className="project" delay={0.04}>
         <a className="project-stage context-stage" href="https://github.com/ash-rafhamid/contextbridge-extension" target="_blank" rel="noreferrer" aria-label="Explore Context Bridge on GitHub">
           <div className="stage-heading"><span className="project-symbol"><Copy size={19} /></span><span>Context Bridge</span><ArrowUpRight size={20} /></div>
