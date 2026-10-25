@@ -1,23 +1,89 @@
-import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'framer-motion'
-import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Code2, Copy, FileText, Menu, Play, Plus, Terminal, X } from 'lucide-react'
+import { AnimatePresence, MotionConfig, motion, useReducedMotion, type Variants } from 'framer-motion'
+import { ArrowDown, ArrowUp, ArrowUpRight, Check, Copy, Menu, Moon, Plus, Sun, X } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { contact, publications, skills, type Publication } from './portfolio'
-import HumanMachineStudy from './HumanMachineStudy'
 import OpeningSequence from './OpeningSequence'
 import AnimatedSignature from './AnimatedSignature'
+import { switchTheme, useTheme } from './theme'
 
 const ease = [0.22, 1, 0.36, 1] as const
-const nav = [{ label: 'Work', href: '#work' }, { label: 'Publications', href: '#publications' }, { label: 'About', href: '#about' }, { label: 'Play', href: '#duel' }]
+const nav = [
+  { label: 'Work', id: 'work' },
+  { label: 'Research', id: 'publications' },
+  { label: 'About', id: 'about' },
+  { label: 'Contact', id: 'contact' },
+]
+const observedSections = ['home', ...nav.map(item => item.id)]
+const profiles = [
+  { label: 'GitHub', href: contact.github },
+  { label: 'LinkedIn', href: contact.linkedin },
+  { label: 'LeetCode', href: 'https://leetcode.com/u/ash-rafhamid' },
+]
 
-function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
+function Reveal({ children, className, delay = 0, as = 'div' }: { children: ReactNode; className?: string; delay?: number; as?: 'div' | 'li' }) {
   const reduced = useReducedMotion()
-  return <motion.div className={className} initial={reduced ? false : { opacity: 0, y: 25 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.1 }} transition={{ duration: 0.7, delay, ease }}>{children}</motion.div>
+  const Tag = as === 'li' ? motion.li : motion.div
+  return <Tag className={className} initial={reduced ? false : { opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.12 }} transition={{ duration: 0.75, delay, ease }}>{children}</Tag>
+}
+
+const arrows = { 'up-right': ArrowUpRight, down: ArrowDown, up: ArrowUp }
+
+/** Two copies of the arrow: on hover the first leaves in its direction and the second takes its place. */
+function Arrow({ dir = 'up-right', size = 16 }: { dir?: keyof typeof arrows; size?: number }) {
+  const Icon = arrows[dir]
+  return <span className="swap-icon" data-dir={dir} aria-hidden="true"><Icon size={size} /><Icon size={size} /></span>
+}
+
+function MetaList({ items, label, className }: { items: string[]; label?: string; className?: string }) {
+  return <ul className={`meta-list${className ? ` ${className}` : ''}`} aria-label={label}>{items.map(item => <li key={item}>{item}</li>)}</ul>
+}
+
+function useCopy(text: string) {
+  const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle')
+  const reset = useRef<number | null>(null)
+  useEffect(() => () => { if (reset.current !== null) window.clearTimeout(reset.current) }, [])
+  async function copy() {
+    try { await navigator.clipboard.writeText(text); setState('copied') }
+    catch { setState('failed') }
+    if (reset.current !== null) window.clearTimeout(reset.current)
+    reset.current = window.setTimeout(() => setState('idle'), 2500)
+  }
+  return [state, copy] as const
+}
+
+function useActiveSection() {
+  const [active, setActive] = useState<string | null>(null)
+  useEffect(() => {
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) if (entry.isIntersecting) setActive(entry.target.id)
+    }, { rootMargin: '-45% 0px -50% 0px' })
+    observedSections.forEach(id => { const section = document.getElementById(id); if (section) observer.observe(section) })
+    return () => observer.disconnect()
+  }, [])
+  return active
+}
+
+function ThemeToggle() {
+  const theme = useTheme()
+  const next = theme === 'dark' ? 'light' : 'dark'
+  return <button type="button" className="icon-button theme-toggle" onClick={() => switchTheme(next)} aria-label={`Switch to ${next} theme`} title={`Switch to ${next} theme`}>
+    <Sun className="icon-sun" size={16} aria-hidden="true" />
+    <Moon className="icon-moon" size={16} aria-hidden="true" />
+  </button>
 }
 
 function Header() {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const active = useActiveSection()
   const toggle = useRef<HTMLButtonElement>(null)
   const navigation = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 8)
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    return () => window.removeEventListener('scroll', update)
+  }, [])
   useEffect(() => {
     if (!open) return
     const previous = document.body.style.overflow
@@ -33,148 +99,266 @@ function Header() {
     window.addEventListener('keydown', close)
     return () => { document.body.style.overflow = previous; window.removeEventListener('keydown', close); toggle.current?.focus() }
   }, [open])
-  return <header className="navigation">
-    <AnimatedSignature />
-    <nav className="desktop-navigation" aria-label="Main navigation">{nav.map(item => <a className={item.href === '#duel' ? 'nav-play' : undefined} href={item.href} key={item.href} onClick={() => { if (item.href === '#duel') window.dispatchEvent(new Event('portfolio:play')) }}>{item.href === '#duel' && <Play size={12} fill="currentColor" />}{item.label}</a>)}</nav>
-    <a className="nav-contact" href="#contact">Let’s talk <ArrowUpRight size={16} /></a>
-    <button ref={toggle} className="menu-toggle" type="button" aria-expanded={open} aria-controls="mobile-navigation" aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button>
-    <AnimatePresence>{open && <motion.nav ref={navigation} id="mobile-navigation" className="mobile-navigation" aria-label="Mobile navigation" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.24 }}>
-      <p>Take a look around.</p>{[...nav, { label: 'Get in touch', href: '#contact' }].map((item, index) => <a href={item.href} key={item.href} onClick={() => { setOpen(false); if (item.href === '#duel') window.dispatchEvent(new Event('portfolio:play')) }}><span>0{index + 1}</span>{item.label}<ArrowUpRight /></a>)}<span className="menu-location">Dhaka, Bangladesh</span>
+  return <header className={`site-header${scrolled || open ? ' is-raised' : ''}`}>
+    <div className="header-inner container">
+      <AnimatedSignature />
+      <nav className="desktop-nav" aria-label="Main navigation">{nav.map(item => <a href={`#${item.id}`} key={item.id} aria-current={active === item.id ? 'location' : undefined}>{item.label}</a>)}</nav>
+      <div className="header-tools">
+        <ThemeToggle />
+        <button ref={toggle} className="icon-button menu-toggle" type="button" aria-expanded={open} aria-controls="mobile-navigation" aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen(!open)}>{open ? <X size={18} /> : <Menu size={18} />}</button>
+      </div>
+    </div>
+    <AnimatePresence>{open && <motion.nav ref={navigation} id="mobile-navigation" className="mobile-nav" aria-label="Mobile navigation" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25, ease }}>
+      <div className="container">
+        {nav.map(item => <a href={`#${item.id}`} key={item.id} onClick={() => setOpen(false)}>{item.label}<ArrowUpRight size={20} aria-hidden="true" /></a>)}
+        <p>Dhaka, Bangladesh</p>
+      </div>
     </motion.nav>}</AnimatePresence>
   </header>
 }
 
-function Hero() {
+function Words({ text, offset = 0 }: { text: string; offset?: number }) {
   const reduced = useReducedMotion()
-  return <section className="introduction" id="home" aria-labelledby="hero-title">
-    <div className="hero-layout">
-      <div className="intro-copy">
-        <Reveal><p className="eyebrow"><span className="status-dot" />Hello, I’m Ashraf Hamid Mojumder</p></Reveal>
-        <h1 id="hero-title">{['A curious mind.', 'A builder at heart.'].map((line, index) => <span className="headline-clip" key={line}><motion.span initial={reduced ? false : { y: '110%', rotate: 3 }} animate={{ y: 0, rotate: 0 }} transition={{ duration: 0.95, delay: 0.1 + index * 0.12, ease }}>{index ? <em>{line}</em> : line}</motion.span></span>)}</h1>
-        <Reveal delay={0.28}><p className="hero-description">I turn ideas into software and questions into research. Working at the intersection of <strong>engineering, machine learning,</strong> and the people who use them.</p></Reveal>
-        <Reveal className="hero-actions" delay={0.36}><a className="primary-link" href="#work">Explore my work <ArrowDown size={17} /></a><a className="text-link" href="#publications">Read my research <ArrowUpRight size={16} /></a></Reveal>
+  return text.split(' ').map((word, index) => <span key={index}>
+    {index > 0 && ' '}
+    <motion.span className="word" initial={reduced ? false : { opacity: 0, y: '0.4em' }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 + (offset + index) * 0.04, ease }}>{word}</motion.span>
+  </span>)
+}
+
+const highlights = [
+  { meta: 'ICML 2026 · Workshop paper', title: 'FD-Loss: supervised feature decorrelation as a replacement for random dropout', href: 'https://icml.cc/virtual/2026/80194' },
+  { meta: 'Journal article · 2026', title: 'Explainable ensemble learning for predicting IVIG resistance in Kawasaki disease', href: 'https://doi.org/10.1016/j.meadig.2026.100056' },
+  { meta: 'Open source · npm', title: 'Ternyx, a model-agnostic coding agent for the terminal', href: 'https://www.npmjs.com/package/ternyx-agent' },
+]
+
+function Hero() {
+  return <section className="hero container" id="home" aria-labelledby="hero-title">
+    <Reveal><p className="label">Software engineer & machine learning researcher</p></Reveal>
+    <h1 id="hero-title" className="hero-title">
+      <span className="hero-line"><Words text="I turn ideas into software" /></span>
+      <span className="hero-line"><Words text="and questions into research." offset={5} /></span>
+    </h1>
+    <div className="hero-bottom">
+      <Reveal delay={0.4}><p className="hero-lede">I’m <strong>Ashraf Hamid Mojumder</strong>, a Computer Science and Engineering student in Dhaka. I build developer tools, and I research how machine learning models behave, where they fail, and how to explain the difference.</p></Reveal>
+      <Reveal className="hero-actions" delay={0.48}>
+        <a className="button button-primary" href="#work">View my work <Arrow dir="down" /></a>
+        <a className="text-link" href="#publications">Read my research <Arrow dir="down" /></a>
+      </Reveal>
+    </div>
+    <Reveal delay={0.56}>
+      <ul className="highlights" aria-label="Recent highlights">{highlights.map(item => <li key={item.href}>
+        <a className="highlight" href={item.href} target="_blank" rel="noreferrer">
+          <span className="highlight-meta">{item.meta}</span>
+          <span className="highlight-title">{item.title}</span>
+          <Arrow size={17} />
+        </a>
+      </li>)}</ul>
+    </Reveal>
+  </section>
+}
+
+function SectionHead({ label, id, title, note }: { label: string; id: string; title: ReactNode; note?: string }) {
+  return <Reveal className="section-head">
+    <p className="label">{label}</p>
+    <h2 id={id}>{title}</h2>
+    {note && <p className="section-note">{note}</p>}
+  </Reveal>
+}
+
+const terminalLines: Variants = { hidden: {}, shown: { transition: { staggerChildren: 0.32, delayChildren: 0.25 } } }
+const terminalLine: Variants = { hidden: { opacity: 0, y: 6 }, shown: { opacity: 1, y: 0, transition: { duration: 0.45, ease } } }
+const ternyxSteps = [
+  { tool: 'read_file', target: 'server.js', note: 'context' },
+  { tool: 'edit_file', target: 'server.js', note: 'focused edit' },
+  { tool: 'run_command', target: 'node test.js', note: 'approved' },
+]
+
+function TernyxTerminal() {
+  const reduced = useReducedMotion()
+  return <figure className="terminal">
+    <div className="terminal-bar" aria-hidden="true"><span className="terminal-dots"><i /><i /><i /></span><span>~/my-api — ternyx</span></div>
+    <motion.ol className="terminal-body" variants={terminalLines} initial={reduced ? false : 'hidden'} whileInView="shown" viewport={{ once: true, amount: 0.4 }}>
+      <motion.li variants={terminalLine}><span className="term-prompt">ternyx ›</span> Add error handling to server.js</motion.li>
+      <motion.li variants={terminalLine} className="term-plan"><span className="term-muted">plan</span> Inspect the route handlers, then edit and verify.</motion.li>
+      {ternyxSteps.map(step => <motion.li variants={terminalLine} className="term-step" key={step.tool}>
+        <Check size={14} className="term-ok" aria-hidden="true" /><span className="term-tool">{step.tool}</span><span className="term-target">{step.target}</span><span className="term-muted term-note">{step.note}</span>
+      </motion.li>)}
+      <motion.li variants={terminalLine} className="term-done">Done. Changes are ready for your review.<span className="caret" aria-hidden="true" /></motion.li>
+    </motion.ol>
+    <figcaption>Example session</figcaption>
+  </figure>
+}
+
+function TernyxFeature() {
+  const command = 'npm install -g ternyx-agent'
+  const [state, copy] = useCopy(command)
+  return <Reveal>
+    <article className="feature-card" aria-labelledby="ternyx-title">
+      <div className="feature-copy">
+        <MetaList items={['Featured project', 'AI coding agent', 'v0.4.0', 'MIT']} />
+        <h3 id="ternyx-title">Ternyx</h3>
+        <p className="feature-tagline">An open, model-agnostic coding agent for your terminal.</p>
+        <p className="feature-text">Ternyx explores a repository, plans before it edits, makes focused changes and runs checks, using whichever local or cloud model you choose.</p>
+        <ul className="feature-list" aria-label="Capabilities">{['Read-only planning mode', 'Workspace-scoped file tools', 'Resumable sessions', 'Built-in MCP server', 'Local or cloud models', 'No runtime dependencies'].map(item => <li key={item}>{item}</li>)}</ul>
+        <div className="feature-actions">
+          <button type="button" className="install" onClick={copy} aria-label={`Copy install command: ${command}`}>
+            <code><span aria-hidden="true">$</span>{command}</code>
+            {state === 'copied' ? <Check size={15} aria-hidden="true" /> : <Copy size={15} aria-hidden="true" />}
+          </button>
+          <span className="visually-hidden" aria-live="polite">{state === 'copied' ? 'Install command copied' : state === 'failed' ? 'Copy failed' : ''}</span>
+          <a className="text-link" href="https://www.npmjs.com/package/ternyx-agent" target="_blank" rel="noreferrer">View on npm <Arrow /></a>
+        </div>
+        <MetaList className="stack" label="Built with" items={['JavaScript', 'Node.js 20+', 'LLM tool calling', 'MCP']} />
       </div>
-      <motion.aside className="desk-index" initial={reduced ? false : { opacity: 0, y: 25, rotate: 3 }} animate={{ opacity: 1, y: 0, rotate: 0 }} transition={{ delay: 0.42, duration: 1, ease }} aria-label="Portfolio at a glance">
-        <div className="desk-heading"><span>On my desk</span><span className="desk-year">2026</span></div>
-        <a className="desk-item" href="#work"><span className="desk-number">01</span><div><strong>Things I’ve built</strong><span>Ternyx, Context Bridge & CrashLens</span></div><ArrowUpRight size={18} /></a>
-        <a className="desk-item" href="#publications"><span className="desk-number">02</span><div><strong>Questions I’m exploring</strong><span>Learning, vision & explainability</span></div><ArrowUpRight size={18} /></a>
-        <a className="desk-item" href="#skills"><span className="desk-number">03</span><div><strong>The tools behind it</strong><span>Python, React, PyTorch & more</span></div><ArrowUpRight size={18} /></a>
-        <div className="desk-note"><span className="handwritten">Small details. Real purpose.</span><span className="note-line" /></div>
-      </motion.aside>
-    </div>
-    <Reveal className="intro-notes" delay={0.45}><span>Based in Dhaka, Bangladesh</span><a href="#work">Scroll to discover <ArrowDown size={14} /></a><span>Software engineering & applied AI</span></Reveal>
-  </section>
-}
-
-function CrashLensPreview() {
-  return <div className="crash-window" aria-label="Illustrative CrashLens error monitoring interface">
-    <div className="window-bar"><span className="window-dots"><i /><i /><i /></span><span>crashlens / overview</span><span className="demo-label">Sample view</span></div>
-    <div className="crash-body"><aside className="crash-sidebar"><span className="crash-monogram">c<span>l</span></span><span className="sidebar-active">Overview</span><span>Issues</span><span>Projects</span></aside>
-      <div className="crash-content"><div className="crash-content-heading"><strong>Good visibility.<br />Faster fixes.</strong><span className="live-status"><i />Monitoring</span></div><div className="error-summary"><span>Unresolved issue</span><strong>TypeError</strong><p>Cannot read properties of undefined</p><div><code>checkout.tsx:42</code><span>Investigate <ArrowUpRight size={12} /></span></div></div><div className="breadcrumb"><span className="breadcrumb-line" /><span>Page load</span><span>Button click</span><span className="error-step">Exception</span></div></div>
-    </div>
-  </div>
-}
-
-function Work() {
-  return <section id="work" className="work-section section-width" aria-labelledby="work-title">
-    <Reveal className="section-top"><div><p className="eyebrow">Selected work</p><h2 id="work-title">Made to be <em>useful.</em></h2></div><p>Three projects. A shared idea:<br />make complicated things easier.</p></Reveal>
-    <div className="work-grid">
-      <Reveal className="ternyx-feature">
-        <article className="ternyx-card" aria-labelledby="ternyx-title">
-          <div className="ternyx-copy">
-            <p className="eyebrow">Featured / AI coding agent</p>
-            <h3 id="ternyx-title">Ternyx</h3>
-            <p className="ternyx-lead">From a task<br />to <em>working code.</em></p>
-            <p>A model-agnostic coding agent for your terminal. It explores repositories, makes focused edits, and runs checks using your chosen local or cloud model.</p>
-            <div className="project-tags"><span>JavaScript</span><span>Node.js</span><span>LLM tool calling</span><span>MCP</span></div>
-            <a className="text-link" href="https://www.npmjs.com/package/ternyx-agent" target="_blank" rel="noreferrer">Explore on npm <ArrowUpRight size={16} /></a>
-          </div>
-          <div className="ternyx-demo">
-            <div className="ternyx-terminal" aria-label="Illustrative Ternyx coding workflow, not a live session">
-              <div className="ternyx-terminal-bar"><span><Terminal size={16} /> ternyx</span><span>Example workflow</span></div>
-              <div className="ternyx-terminal-body">
-                <p><span className="ternyx-prompt">ternyx ›</span> Add error handling to server.js</p>
-                <ol className="ternyx-steps">
-                  <li><span>01</span><div><strong>Read the context</strong><code>read_file server.js</code></div></li>
-                  <li><span>02</span><div><strong>Make a focused change</strong><code>edit_file server.js</code></div></li>
-                  <li><span>03</span><div><strong>Verify with your approval</strong><code>run_command node test.js</code></div></li>
-                </ol>
-                <p className="ternyx-terminal-note">Plan first. Build next. Resume anytime.</p>
-              </div>
-            </div>
-            <div className="ternyx-install"><span>Install the CLI</span><code>npm install -g ternyx-agent</code></div>
-            <p className="ternyx-requirements">Node.js 20+ · Bring a compatible model · No runtime dependencies</p>
-          </div>
-          <ul className="ternyx-capabilities"><li>Read-only planning</li><li>Workspace-scoped file tools</li><li>Resumable sessions</li><li>MCP server included</li></ul>
-        </article>
-      </Reveal>
-      <Reveal className="project" delay={0.04}>
-        <a className="project-stage context-stage" href="https://github.com/ash-rafhamid/contextbridge-extension" target="_blank" rel="noreferrer" aria-label="Explore Context Bridge on GitHub">
-          <div className="stage-heading"><span className="project-symbol"><Copy size={19} /></span><span>Context Bridge</span><ArrowUpRight size={20} /></div>
-          <p className="stage-title">Keep the conversation.<br /><em>Carry the context.</em></p>
-          <div className="context-screenshot"><img src="/projects/contextbridge.png" alt="Context Bridge’s conversation export interface" loading="lazy" width="1280" height="800" /></div>
-          <span className="stage-caption">Your conversations. Your files.</span>
-        </a>
-        <div className="project-detail"><div className="project-name"><h3>Context Bridge</h3><span>01 / Browser extension</span></div><p>A privacy-first extension that exports your visible AI conversations to Markdown, JSON, or plain text. Everything happens locally.</p><div className="project-tags"><span>JavaScript</span><span>Chrome extension</span><span>Privacy</span></div><a className="text-link" href="https://github.com/ash-rafhamid/contextbridge-extension" target="_blank" rel="noreferrer">Explore the project <ArrowUpRight size={16} /></a></div>
-      </Reveal>
-      <Reveal className="project" delay={0.12}>
-        <a className="project-stage crash-stage" href="https://crashlens-dashboard-six.vercel.app" target="_blank" rel="noreferrer" aria-label="Open the CrashLens dashboard">
-          <div className="stage-heading"><span className="project-symbol"><Code2 size={20} /></span><span>CrashLens</span><ArrowUpRight size={20} /></div>
-          <p className="stage-title">Every error<br /><em>has a story.</em></p><CrashLensPreview /><span className="stage-caption">From browser exception to a clearer next step.</span>
-        </a>
-        <div className="project-detail"><div className="project-name"><h3>CrashLens</h3><span>02 / Developer tool</span></div><p>A self-hosted browser error monitor. An SDK, API, and dashboard bring exceptions, breadcrumbs, and context into one debugging workflow.</p><div className="project-tags"><span>TypeScript</span><span>Next.js</span><span>PostgreSQL</span></div><div className="project-links"><a className="text-link" href="https://crashlens-dashboard-six.vercel.app" target="_blank" rel="noreferrer">View live <ArrowUpRight size={16} /></a><a className="text-link secondary-link" href="https://github.com/ash-rafhamid/crashlens" target="_blank" rel="noreferrer">Source code <ArrowUpRight size={16} /></a></div></div>
-      </Reveal>
-    </div>
-  </section>
-}
-
-function Paper({ paper, index }: { paper: Publication; index: number }) {
-  const [expanded, setExpanded] = useState(false)
-  return <Reveal className="paper-row" delay={index * 0.025}>
-    <div className="paper-marker"><span>0{index + 1}</span><FileText size={21} strokeWidth={1.5} /></div>
-    <article className="paper-content"><div className="paper-meta"><span>{paper.venue}</span><span className={paper.type === 'Accepted' ? 'accepted-status' : ''}>{paper.type === 'Accepted' && <Check size={12} />}{paper.type}</span></div><h3>{paper.title}</h3><p className="paper-description">{paper.description}</p><div className="paper-footer"><div className="paper-topics">{paper.topics.map(topic => <span key={topic}>{topic}</span>)}</div>{paper.href ? <a className="text-link" href={paper.href} target="_blank" rel="noreferrer">{paper.linkLabel}<ArrowUpRight size={16} /></a> : <button className="abstract-toggle" type="button" aria-expanded={expanded} aria-controls={`abstract-${paper.id}`} onClick={() => setExpanded(!expanded)}>{expanded ? 'Close abstract' : 'Read abstract'}<Plus size={16} className={expanded ? 'is-expanded' : ''} /></button>}</div>
-      {paper.secondaryHref && <a className="paper-secondary" href={paper.secondaryHref} target="_blank" rel="noreferrer">Also on OpenReview <ArrowUpRight size={13} /></a>}
-      {paper.abstract && <div className={`abstract-panel ${expanded ? 'is-expanded' : ''}`} id={`abstract-${paper.id}`} aria-hidden={!expanded}><div><div className="abstract-body"><h4>Abstract</h4><p>{paper.abstract}</p><span className="publication-note">Public paper link forthcoming.</span></div></div></div>}
+      <TernyxTerminal />
     </article>
   </Reveal>
 }
 
-function Publications() {
-  return <section className="publications-section" id="publications" aria-labelledby="publications-title"><div className="section-width publications-layout">
-    <Reveal className="research-intro"><p className="eyebrow">Publications & research</p><h2 id="publications-title">A little deeper.<br /><em>A little further.</em></h2><p>I’m interested in how learning systems behave, where they fail, and how we can explain the difference.</p><div className="research-fields"><span>Machine learning</span><span>Computer vision</span><span>Explainable AI</span></div><span className="research-year">Selected research / 2026</span></Reveal>
-    <div className="papers">{publications.map((paper, index) => <Paper key={paper.id} paper={paper} index={index} />)}</div>
-  </div></section>
+function CrashLensIllustration() {
+  const bars = [3, 5, 4, 6, 4, 7, 5, 9, 6, 12, 8, 6, 5, 4]
+  return <div className="crash">
+    <div className="crash-bar"><span className="crash-logo" />crashlens<span className="crash-path">/ issues</span><span className="crash-label">Illustration</span></div>
+    <div className="crash-main">
+      <div className="crash-summary">
+        <div><span>Unresolved</span><strong>3</strong></div>
+        <div className="crash-chart">{bars.map((height, index) => <i key={index} style={{ height: `${height * 7}%` }} />)}</div>
+      </div>
+      <ul className="crash-issues">
+        <li><span className="severity is-high" /><div><strong>TypeError</strong><span>Cannot read properties of undefined</span></div><code>checkout.tsx:42</code></li>
+        <li><span className="severity" /><div><strong>ReferenceError</strong><span>user is not defined</span></div><code>profile.tsx:18</code></li>
+        <li><span className="severity is-low" /><div><strong>Unhandled rejection</strong><span>Failed to fetch /api/orders</span></div><code>orders.ts:77</code></li>
+      </ul>
+    </div>
+  </div>
+}
+
+type ProjectLink = { label: string; href: string }
+
+function ProjectCard({ category, name, tagline, description, tags, links, media, delay = 0 }: { category: string; name: string; tagline: string; description: string; tags: string[]; links: ProjectLink[]; media: ReactNode; delay?: number }) {
+  const titleId = `${name.toLowerCase().replace(/\s/g, '-')}-title`
+  return <Reveal className="project-card" delay={delay}>
+    <article aria-labelledby={titleId}>
+      <a className="project-media" href={links[0].href} target="_blank" rel="noreferrer" tabIndex={-1} aria-hidden="true">{media}</a>
+      <div className="project-body">
+        <p className="project-category">{category}</p>
+        <h3 id={titleId}>{name}</h3>
+        <p className="project-tagline">{tagline}</p>
+        <p className="project-description">{description}</p>
+        <MetaList label="Built with" items={tags} />
+        <div className="project-links">{links.map(link => <a className="text-link" href={link.href} target="_blank" rel="noreferrer" key={link.href}>{link.label} <Arrow /></a>)}</div>
+      </div>
+    </article>
+  </Reveal>
+}
+
+function Work() {
+  return <section id="work" className="section container" aria-labelledby="work-title">
+    <SectionHead label="Selected work" id="work-title" title="Tools I’ve designed, built and shipped." note="Three projects with one shared idea: take something complicated and make it feel simple." />
+    <TernyxFeature />
+    <div className="project-grid">
+      <ProjectCard
+        category="Browser extension"
+        name="Context Bridge"
+        tagline="Keep the conversation. Carry the context."
+        description="A privacy-first Chrome extension that exports your visible AI conversations to Markdown, JSON or plain text. Everything happens locally, with no accounts, tracking or uploads."
+        tags={['JavaScript', 'Chrome extension', 'Privacy']}
+        links={[{ label: 'View on GitHub', href: 'https://github.com/ash-rafhamid/contextbridge-extension' }]}
+        media={<img className="shot" src="/projects/contextbridge.png" alt="" loading="lazy" width="1280" height="800" />}
+      />
+      <ProjectCard
+        category="Developer tool"
+        name="CrashLens"
+        tagline="Every error has a story."
+        description="A self-hosted browser error monitor. An SDK, an API and a dashboard bring exceptions, breadcrumbs and context together in one debugging workflow."
+        tags={['TypeScript', 'Next.js', 'PostgreSQL']}
+        links={[{ label: 'Live demo', href: 'https://crashlens-dashboard-six.vercel.app' }, { label: 'Source code', href: 'https://github.com/ash-rafhamid/crashlens' }]}
+        media={<CrashLensIllustration />}
+        delay={0.08}
+      />
+    </div>
+  </section>
+}
+
+function Paper({ paper }: { paper: Publication }) {
+  const [open, setOpen] = useState(false)
+  return <Reveal as="li" className="paper">
+    <div className="paper-meta">
+      <span className="paper-year">{paper.year}</span>
+      <span>{paper.venue}</span>
+      <span className={`status${paper.accepted ? ' is-accepted' : ''}`}><i aria-hidden="true" />{paper.status}</span>
+    </div>
+    <article className="paper-main">
+      <h3>{paper.title}</h3>
+      <p className="paper-description">{paper.description}</p>
+      {paper.results && <dl className="results">{paper.results.map(result => <div key={result.label}><dt>{result.label}</dt><dd>{result.value}</dd></div>)}</dl>}
+      <div className="paper-footer">
+        <MetaList label="Topics" items={paper.topics} />
+        <div className="paper-actions">
+          {paper.links.map(link => <a className="text-link" href={link.href} target="_blank" rel="noreferrer" key={link.href}>{link.label} <Arrow /></a>)}
+          {paper.abstract && <button className="text-link abstract-toggle" type="button" aria-expanded={open} aria-controls={`abstract-${paper.id}`} onClick={() => setOpen(!open)}>{open ? 'Hide abstract' : 'Read abstract'}<Plus size={16} className={open ? 'is-open' : undefined} aria-hidden="true" /></button>}
+        </div>
+      </div>
+      {paper.abstract && <div className={`abstract${open ? ' is-open' : ''}`} id={`abstract-${paper.id}`} inert={!open}>
+        <div><div className="abstract-body"><h4>Abstract</h4><p>{paper.abstract}</p><span>Public paper link forthcoming.</span></div></div>
+      </div>}
+    </article>
+  </Reveal>
+}
+
+function Research() {
+  return <section id="publications" className="section research" aria-labelledby="research-title">
+    <div className="container">
+      <SectionHead label="Research" id="research-title" title="How learning systems behave, where they fail, and why." note="My research spans explainable machine learning, computer vision and medical imaging." />
+      <ol className="papers">{publications.map(paper => <Paper key={paper.id} paper={paper} />)}</ol>
+    </div>
+  </section>
 }
 
 function About() {
-  const [showDuel, setShowDuel] = useState(false)
-  useEffect(() => {
-    const revealHash = () => { if (window.location.hash === '#duel') setShowDuel(true) }
-    const openGame = () => setShowDuel(true)
-    revealHash()
-    window.addEventListener('hashchange', revealHash)
-    window.addEventListener('portfolio:play', openGame)
-    return () => { window.removeEventListener('hashchange', revealHash); window.removeEventListener('portfolio:play', openGame) }
-  }, [])
-  return <section className="about-section section-width" id="about" aria-labelledby="about-title">
-    <Reveal className="about-layout"><div className="about-heading"><p className="eyebrow">A bit about me</p><h2 id="about-title">Built on curiosity.<br /><em>Kept going by craft.</em></h2></div><div className="about-copy"><p>I’m Ashraf, a Computer Science and Engineering student in Dhaka. I enjoy moving between the practical work of building software and the open questions of machine learning.</p><p>Some days that means making a browser extension feel effortless. On others, it means investigating why a model loses its footing. The part I enjoy most is turning what I learn into something clear and useful.</p><div className="about-links"><a href={contact.github} target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={15} /></a><a href={contact.linkedin} target="_blank" rel="noreferrer">LinkedIn <ArrowUpRight size={15} /></a><a href="https://leetcode.com/u/ash-rafhamid" target="_blank" rel="noreferrer">LeetCode <ArrowUpRight size={15} /></a></div></div></Reveal>
-    <div className="skills-section" id="skills"><Reveal className="skills-heading"><h3>My working toolkit<span>.</span></h3><p>The right tool for the question in front of me.</p></Reveal><div className="skills-grid">{skills.map((group, index) => <Reveal className="skill-group" delay={index * 0.04} key={group.title}><span className="skill-number">0{index + 1}</span><h4>{group.title}</h4><p>{group.description}</p><div className="skill-tags">{group.items.map(skill => <span key={skill}>{skill}</span>)}</div></Reveal>)}</div></div>
-    <div className="play-detour" id="duel"><button type="button" className="duel-disclosure" onClick={() => setShowDuel(!showDuel)} aria-expanded={showDuel} aria-controls="math-duel"><span><span className="play-label"><Play size={12} fill="currentColor" />Take the challenge</span><strong>Think you can beat the machine?</strong><span className="play-description">Five rounds. An adaptive opponent. Your next personal best.</span></span><span>{showDuel ? 'Close game' : 'Let’s play'}<ChevronDown className={showDuel ? 'is-expanded' : ''} size={18} /></span></button><div id="math-duel" hidden={!showDuel}>{showDuel && <HumanMachineStudy />}</div></div>
+  return <section id="about" className="section container" aria-labelledby="about-title">
+    <SectionHead label="About" id="about-title" title="Built on curiosity, kept going by craft." />
+    <div className="about-grid">
+      <Reveal className="about-copy">
+        <p className="about-lead">I’m Ashraf, a Computer Science and Engineering student in Dhaka, Bangladesh. I enjoy moving between the practical work of building software and the open questions of machine learning.</p>
+        <p>Some days that means making a browser extension feel effortless. On others, it means investigating why a model loses its footing. The part I enjoy most is turning what I learn into something clear and useful.</p>
+        <dl className="facts">
+          <div><dt>Based in</dt><dd>Dhaka, Bangladesh</dd></div>
+          <div><dt>Studying</dt><dd>Computer Science & Engineering</dd></div>
+          <div><dt>Focus</dt><dd>Explainable AI, computer vision and developer tools</dd></div>
+        </dl>
+        <div className="profile-links">{profiles.map(profile => <a className="text-link" href={profile.href} target="_blank" rel="noreferrer" key={profile.label}>{profile.label} <Arrow /></a>)}</div>
+      </Reveal>
+      <Reveal className="toolkit" delay={0.08}>
+        <h3>Toolkit</h3>
+        <dl>{skills.map(group => <div className="toolkit-row" key={group.title}><dt>{group.title}</dt><dd>{group.items.join(', ')}</dd></div>)}</dl>
+      </Reveal>
+    </div>
   </section>
 }
 
 function Contact() {
-  const [copied, setCopied] = useState(false)
-  const [copyFailed, setCopyFailed] = useState(false)
-  const reset = useRef<number | null>(null)
-  useEffect(() => () => { if (reset.current !== null) window.clearTimeout(reset.current) }, [])
-  async function copyEmail() {
-    try { await navigator.clipboard.writeText(contact.email); setCopied(true); setCopyFailed(false); if (reset.current !== null) window.clearTimeout(reset.current); reset.current = window.setTimeout(() => setCopied(false), 2500) }
-    catch { setCopyFailed(true) }
-  }
-  return <section className="contact-section" id="contact"><Reveal className="contact-inner section-width"><p className="eyebrow">Have something in mind?</p><h2>Let’s make<br /><em>something matter.</em></h2><div className="contact-bottom"><p>A project, a research question,<br />or simply a good conversation.</p><div className="contact-actions"><a className="email-link" href={`mailto:${contact.email}`}>Say hello <ArrowUpRight size={25} /></a><button type="button" onClick={copyEmail} className="copy-email" aria-label="Copy email address">{copied ? <Check size={15} /> : <Copy size={15} />}<span aria-live="polite">{copied ? 'Email copied' : copyFailed ? contact.email : 'Copy email address'}</span></button></div></div></Reveal></section>
+  const [state, copy] = useCopy(contact.email)
+  const [user, domain] = contact.email.split('@')
+  return <section id="contact" className="contact container" aria-labelledby="contact-title">
+    <Reveal className="contact-inner">
+      <p className="label">Contact</p>
+      <h2 id="contact-title">Have a project or a research question? Let’s talk.</h2>
+      <p className="contact-text">A collaboration, a research question, or simply a good conversation. I’d love to hear from you.</p>
+      <a className="contact-email" href={`mailto:${contact.email}`}><span>{user}@<wbr />{domain}</span><Arrow size={28} /></a>
+      <div className="contact-actions">
+        <button type="button" className="button button-secondary" onClick={copy}>{state === 'copied' ? <Check size={15} aria-hidden="true" /> : <Copy size={15} aria-hidden="true" />}<span aria-live="polite">{state === 'copied' ? 'Email copied' : state === 'failed' ? 'Couldn’t copy' : 'Copy email'}</span></button>
+        <div className="contact-links">{profiles.map(profile => <a className="text-link" href={profile.href} target="_blank" rel="noreferrer" key={profile.label}>{profile.label} <Arrow /></a>)}</div>
+      </div>
+    </Reveal>
+  </section>
 }
 
 export default function App() {
-  return <MotionConfig reducedMotion="user"><OpeningSequence><div className="folio"><a className="skip-link" href="#main">Skip to content</a><Header /><main id="main"><Hero /><Work /><Publications /><About /><Contact /></main><footer className="footer section-width"><a className="signature" href="#home">ashraf<span>.</span></a><p>© {new Date().getFullYear()} Ashraf Hamid Mojumder</p><a href="#home">Back to top <ArrowRight size={15} /></a></footer></div></OpeningSequence></MotionConfig>
+  return <MotionConfig reducedMotion="user"><OpeningSequence><div className="folio">
+    <a className="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main"><Hero /><Work /><Research /><About /><Contact /></main>
+    <footer className="container"><div className="footer"><a className="signature" href="#home">ashraf<span>.</span></a><p>© {new Date().getFullYear()} Ashraf Hamid Mojumder</p><a className="text-link" href="#home">Back to top <Arrow dir="up" size={15} /></a></div></footer>
+  </div></OpeningSequence></MotionConfig>
 }

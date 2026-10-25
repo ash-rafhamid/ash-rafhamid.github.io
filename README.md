@@ -6,6 +6,7 @@ A personal portfolio presenting software projects, publications and a practical 
 
 ## Selected projects
 
+- **Ternyx** — an open, model-agnostic coding agent for the terminal, published on npm.
 - **Context Bridge** — a privacy-first Chrome extension for exporting visible AI conversations locally.
 - **CrashLens** — a self-hosted browser error monitoring SDK, API and dashboard.
 
@@ -20,13 +21,11 @@ Paper titles, manuscript abstracts and acceptance information are supplied by th
 
 ## Experience
 
-- Responsive white-and-blue design with DM Sans and Instrument Serif.
-- A short opening: a stationary tilted line releases the name, the letters return into the line, and the header wordmark assembles as charcoal fades into white. Reduced-motion preferences skip the opening.
-- Animated typography, project previews and scroll entrances, with reduced-motion support.
-- Expandable manuscript abstracts and direct links to public research pages.
-- Skills grouped by languages, machine learning, generative AI, web/backend, cloud/platforms and tools, including LangChain, LangGraph, Spring Boot and AWS.
-- A highlighted adaptive mathematics duel with Sprint, Expert and untimed Practice modes, speed/streak bonuses, per-mode local best scores, keyboard controls, pause/resume and round-by-round feedback. A small online regression model learns only from correct completed answers; timeouts are not treated as measured samples.
-- Keyboard-accessible mobile navigation, email links and a copy-email control.
+- Warm light and dark themes built on DM Sans and DM Mono, with every colour defined as a design token.
+- A short opening: a stationary tilted line releases the name and the letters return into it. On a first visit the line then grows into a tilted divider between a light and a dark half; hovering a side brightens it, and choosing one sweeps it across the screen. The choice is remembered, so returning visitors go straight into their theme.
+- A theme toggle in the header cross-fades between light and dark at any time.
+- A featured Ternyx case study with an example terminal session, project cards for Context Bridge and CrashLens, and a publication list with venues, status, key results and expandable abstracts.
+- Subtle scroll entrances, keyboard-accessible navigation and theme chooser, and reduced-motion support throughout.
 
 ## Development
 
@@ -34,7 +33,6 @@ Paper titles, manuscript abstracts and acceptance information are supplied by th
 npm install
 npm run dev
 npx tsc --noEmit
-node scripts/verify-duel.mjs
 npm run build
 ```
 
