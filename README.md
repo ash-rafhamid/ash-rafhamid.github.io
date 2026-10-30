@@ -24,6 +24,9 @@ Paper titles, manuscript abstracts and acceptance information are supplied by th
 - Warm light and dark themes built on DM Sans and DM Mono, with every colour defined as a design token.
 - A short opening: a stationary tilted line releases the name and the letters return into it. On a first visit the line then grows into a tilted divider between a light and a dark half; hovering a side brightens it, and choosing one sweeps it across the screen. The choice is remembered, so returning visitors go straight into their theme.
 - A theme toggle in the header cross-fades between light and dark at any time.
+- A hero map that shows how the work connects. Pick what you need (a dev tool, a web app, image analysis, an explainable model) and a signal follows the skills I use to the projects and papers behind them. Every connection joins a skill to work that really uses it, taken from the project tags and paper topics on the page. Each node is a round shape. It cycles through the options on its own and hovering a node follows its connections. The same design is used on phones, where the faint background connections fade away and only the active path shows.
+- An animated diagram of OtosFiNet in the research list, drawn only from the paper's abstract: two networks read the image in parallel, their features are merged, five categories come out, and Grad-CAM shows what mattered.
+- Both diagrams pause when off screen and hold still for reduced-motion users. The header also compacts and the headline lifts slightly on scroll.
 - A featured Ternyx case study with an example terminal session, project cards for Context Bridge and CrashLens, and a publication list with venues, status, key results and expandable abstracts.
 - Subtle scroll entrances, keyboard-accessible navigation and theme chooser, and reduced-motion support throughout.
 

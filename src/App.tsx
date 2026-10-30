@@ -1,9 +1,11 @@
-import { AnimatePresence, MotionConfig, motion, useReducedMotion, type Variants } from 'framer-motion'
+import { AnimatePresence, MotionConfig, motion, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
 import { ArrowDown, ArrowUp, ArrowUpRight, Check, Copy, Menu, Moon, Plus, Sun, X } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { contact, publications, skills, type Publication } from './portfolio'
 import OpeningSequence from './OpeningSequence'
 import AnimatedSignature from './AnimatedSignature'
+import WorkMap from './WorkMap'
+import ArchitectureFlow from './ArchitectureFlow'
 import { switchTheme, useTheme } from './theme'
 
 const ease = [0.22, 1, 0.36, 1] as const
@@ -99,7 +101,7 @@ function Header() {
     window.addEventListener('keydown', close)
     return () => { document.body.style.overflow = previous; window.removeEventListener('keydown', close); toggle.current?.focus() }
   }, [open])
-  return <header className={`site-header${scrolled || open ? ' is-raised' : ''}`}>
+  return <header className={`site-header${scrolled || open ? ' is-raised' : ''}${scrolled ? ' is-compact' : ''}`}>
     <div className="header-inner container">
       <AnimatedSignature />
       <nav className="desktop-nav" aria-label="Main navigation">{nav.map(item => <a href={`#${item.id}`} key={item.id} aria-current={active === item.id ? 'location' : undefined}>{item.label}</a>)}</nav>
@@ -132,18 +134,24 @@ const highlights = [
 ]
 
 function Hero() {
+  const reduced = useReducedMotion()
+  const { scrollY } = useScroll()
+  const lift = useTransform(scrollY, [0, 480], [0, reduced ? 0 : -26])
   return <section className="hero container" id="home" aria-labelledby="hero-title">
     <Reveal><p className="label">Software engineer & machine learning researcher</p></Reveal>
-    <h1 id="hero-title" className="hero-title">
+    <motion.h1 id="hero-title" className="hero-title" style={{ y: lift }}>
       <span className="hero-line"><Words text="I turn ideas into software" /></span>
       <span className="hero-line"><Words text="and questions into research." offset={5} /></span>
-    </h1>
+    </motion.h1>
     <div className="hero-bottom">
-      <Reveal delay={0.4}><p className="hero-lede">I’m <strong>Ashraf Hamid Mojumder</strong>, a Computer Science and Engineering student in Dhaka. I build developer tools, and I research how machine learning models behave, where they fail, and how to explain the difference.</p></Reveal>
-      <Reveal className="hero-actions" delay={0.48}>
-        <a className="button button-primary" href="#work">View my work <Arrow dir="down" /></a>
-        <a className="text-link" href="#publications">Read my research <Arrow dir="down" /></a>
-      </Reveal>
+      <div className="hero-copy">
+        <Reveal delay={0.4}><p className="hero-lede">I’m <strong>Ashraf Hamid Mojumder</strong>, a Computer Science and Engineering student in Dhaka. I build developer tools, and I research how machine learning models behave, where they fail, and how to explain the difference.</p></Reveal>
+        <Reveal className="hero-actions" delay={0.48}>
+          <a className="button button-primary" href="#work">View my work <Arrow dir="down" /></a>
+          <a className="text-link" href="#publications">Read my research <Arrow dir="down" /></a>
+        </Reveal>
+      </div>
+      <Reveal delay={0.5}><WorkMap /></Reveal>
     </div>
     <Reveal delay={0.56}>
       <ul className="highlights" aria-label="Recent highlights">{highlights.map(item => <li key={item.href}>
@@ -288,10 +296,11 @@ function Paper({ paper }: { paper: Publication }) {
       <span>{paper.venue}</span>
       <span className={`status${paper.accepted ? ' is-accepted' : ''}`}><i aria-hidden="true" />{paper.status}</span>
     </div>
-    <article className="paper-main">
+    <article className="paper-main" id={`paper-${paper.id}`}>
       <h3>{paper.title}</h3>
       <p className="paper-description">{paper.description}</p>
       {paper.results && <dl className="results">{paper.results.map(result => <div key={result.label}><dt>{result.label}</dt><dd>{result.value}</dd></div>)}</dl>}
+      {paper.id === 'otosfinet' && <ArchitectureFlow />}
       <div className="paper-footer">
         <MetaList label="Topics" items={paper.topics} />
         <div className="paper-actions">
